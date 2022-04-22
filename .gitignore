@@ -1,4 +1,4 @@
 .idea
 cloud.iml
-application/files/
-server/files/
+application/files/*.*
+server/files/*.*
