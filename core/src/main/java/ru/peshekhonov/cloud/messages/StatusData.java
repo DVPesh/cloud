@@ -1,10 +1,11 @@
-package ru.peshekhonov.cloud.frames;
+package ru.peshekhonov.cloud.messages;
 
+import lombok.Getter;
+import ru.peshekhonov.cloud.MessageType;
 import ru.peshekhonov.cloud.StatusType;
 
-import java.io.Serializable;
-
-public class StatusData implements Serializable {
+@Getter
+public class StatusData extends Message {
 
     private final String filename;
     private final StatusType status;
@@ -20,15 +21,8 @@ public class StatusData implements Serializable {
         this(filename, status, "");
     }
 
-    public String getFilename() {
-        return filename;
-    }
-
-    public StatusType getStatus() {
-        return status;
-    }
-
-    public String getMessage() {
-        return message;
+    @Override
+    public MessageType getMessageType() {
+        return MessageType.STATUS;
     }
 }

@@ -1,5 +1,6 @@
 package ru.peshekhonov.cloud.controller;
 
+import io.netty.channel.ChannelHandlerContext;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -8,13 +9,20 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
-import ru.peshekhonov.cloud.Frame;
-import ru.peshekhonov.cloud.network.Net;
+import lombok.extern.slf4j.Slf4j;
+import ru.peshekhonov.cloud.messages.FileListRequest;
+import ru.peshekhonov.cloud.network.NettyNet;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
 
+@Slf4j
 public class CloudController implements Initializable {
 
     @FXML
@@ -26,38 +34,50 @@ public class CloudController implements Initializable {
     @FXML
     public Button buttonCopyToClient;
 
-    private final static File CLIENT_DIRECTORY = new File("files");
+    private final static Path CLIENT_DIRECTORY = Path.of("files");
     private final static int BUFFER_SIZE = 8192;
 
-    private Net net;
     private ObservableList<String> clientFiles;
     private ObservableList<String> serverFiles;
-    private long timestamp = 0;
+    private NettyNet net;
+    ChannelHandlerContext ctx;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        clientFiles = FXCollections.observableArrayList(CLIENT_DIRECTORY.list());
+        clientFiles = FXCollections.observableArrayList(new String[0]);
         clientListView.setItems(clientFiles);
         serverFiles = FXCollections.observableArrayList(new String[0]);
         serverListView.setItems(serverFiles);
-        net = new Net(this);
+
+        net = new NettyNet();
+        ctx = net.getPipeline().getChannelPipeline().context("outBoundEncoder");
+
+        new Timer(true).schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Platform.runLater(() -> {
+                    updateClientListView();
+                    ctx.writeAndFlush(new FileListRequest());
+                });
+            }
+        }, 100, 3000);
+
     }
 
-    public void updateServerListView(String[] serverFileList) {
-        long time = timestamp;
-        timestamp = System.currentTimeMillis();
-        if (time != 0 && timestamp - time < 3000) {
-            return;
-        }
+    public void updateServerListView(List<String> serverFileList) {
         int selectedIndex = serverListView.getSelectionModel().getSelectedIndex();
         serverFiles.setAll(serverFileList);
         serverListView.getSelectionModel().select(selectedIndex);
     }
 
     public void updateClientListView() {
-        int selectedIndex = clientListView.getSelectionModel().getSelectedIndex();
-        clientFiles.setAll(CLIENT_DIRECTORY.list());
-        clientListView.getSelectionModel().select(selectedIndex);
+        try {
+            int selectedIndex = clientListView.getSelectionModel().getSelectedIndex();
+            clientFiles.setAll(Files.list(CLIENT_DIRECTORY).map(Path::getFileName).map(Path::toString).toList());
+            clientListView.getSelectionModel().select(selectedIndex);
+        } catch (IOException e) {
+            log.error("Fail to read list of files");
+        }
     }
 
     @FXML

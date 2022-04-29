@@ -1,42 +1,36 @@
 package ru.peshekhonov.cloud.network;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import lombok.extern.slf4j.Slf4j;
 
+import java.nio.file.Path;
+
+@Slf4j
 public class Server {
 
-    public static ExecutorService executorService;
+    public final static Path serverDir = Path.of("server/files");
 
     public static void start(int port) {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server has been started");
-//            AuthService.start();
-            executorService = Executors.newCachedThreadPool();
+        ServerBootstrap bootstrap = new ServerBootstrap();
+        EventLoopGroup light = new NioEventLoopGroup(1);
+        EventLoopGroup hard = new NioEventLoopGroup();
+        try {
+            bootstrap.group(light, hard)
+                    .channel(NioServerSocketChannel.class)
+                    .childHandler(new SerializationPipeline());
 
-            while (true) {
-                waitAndProcessClientConnection(serverSocket);
-            }
-
-        } catch (IOException e) {
-            System.err.println("Failed to bind port " + port);
-            e.printStackTrace();
-//        } catch (SQLException e) {
-//            System.err.println("Database access error occurs");
-//            e.printStackTrace();
+            ChannelFuture channelFuture = bootstrap.bind(port).sync();
+            log.info("Server started...");
+            channelFuture.channel().closeFuture().sync();
+        } catch (Exception e) {
+            log.error("", e);
         } finally {
-//            AuthService.stop();
-            if (executorService != null) executorService.shutdown();
+            light.shutdownGracefully();
+            hard.shutdownGracefully();
         }
-    }
-
-    private static void waitAndProcessClientConnection(ServerSocket serverSocket) throws IOException {
-        System.out.println("Waiting for new client connection");
-        Socket clientSocket = serverSocket.accept();
-        System.out.println("Client has been connected");
-        ApplicationHandler applicationHandler = new ApplicationHandler(clientSocket);
-        applicationHandler.handle();
     }
 }
