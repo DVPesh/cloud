@@ -10,12 +10,14 @@ import ru.peshekhonov.cloud.messages.SubsequentData;
 import ru.peshekhonov.cloud.network.Server;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.StandardOpenOption;
 
 @Slf4j
 public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
+
+    private final ByteBuffer buffer = ByteBuffer.allocate(Server.BUFFER_SIZE);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
@@ -23,15 +25,16 @@ public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
             String filename = data.getFilename();
             log.info("Continue frame of the file \"{}\" is received", filename);
             try {
-                Files.write(Server.serverDir.resolve(filename), data.getData(), StandardOpenOption.APPEND);
+                SeekableByteChannel writeChannel = ctx.pipeline().get(StartHandler.class).getWriteChannel();
+                buffer.put(data.getData());
+                buffer.flip();
+                writeChannel.write(buffer);
+                buffer.clear();
                 if (data.isEndOfFile()) {
+                    writeChannel.close();
                     ctx.writeAndFlush(new StatusData(filename, StatusType.OK));
                     log.info("The file \"{}\" is saved successfully", filename);
                 }
-            } catch (InvalidPathException e) {
-                String str = "the path string cannot be converted to a Path";
-                ctx.writeAndFlush(new StatusData(filename, StatusType.ERROR, str));
-                log.error("File \"{}\": {}", filename, str);
             } catch (IOException e) {
                 String str = "I/O error";
                 ctx.writeAndFlush(new StatusData(filename, StatusType.ERROR, str));

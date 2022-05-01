@@ -6,5 +6,5 @@ import java.io.Serializable;
 
 public abstract class Message implements Serializable {
 
-    public abstract MessageType getMessageType();
+//    public abstract MessageType getMessageType();
 }

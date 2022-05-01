@@ -13,6 +13,7 @@ import java.nio.file.Path;
 public class Server {
 
     public final static Path serverDir = Path.of("server/files");
+    public final static int BUFFER_SIZE = 8192;
 
     public static void start(int port) {
         ServerBootstrap bootstrap = new ServerBootstrap();

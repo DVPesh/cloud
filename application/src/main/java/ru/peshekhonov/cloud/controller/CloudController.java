@@ -1,6 +1,6 @@
 package ru.peshekhonov.cloud.controller;
 
-import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.Channel;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,14 +9,21 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.peshekhonov.cloud.messages.FileListRequest;
+import ru.peshekhonov.cloud.messages.StartData;
+import ru.peshekhonov.cloud.messages.SubsequentData;
 import ru.peshekhonov.cloud.network.NettyNet;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Timer;
@@ -39,8 +46,10 @@ public class CloudController implements Initializable {
 
     private ObservableList<String> clientFiles;
     private ObservableList<String> serverFiles;
-    private NettyNet net;
-    ChannelHandlerContext ctx;
+    private @Getter
+    NettyNet net;
+    private @Setter
+    Channel socketChannel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -50,14 +59,13 @@ public class CloudController implements Initializable {
         serverListView.setItems(serverFiles);
 
         net = new NettyNet();
-        ctx = net.getPipeline().getChannelPipeline().context("outBoundEncoder");
 
         new Timer(true).schedule(new TimerTask() {
             @Override
             public void run() {
                 Platform.runLater(() -> {
                     updateClientListView();
-                    ctx.writeAndFlush(new FileListRequest());
+                    socketChannel.writeAndFlush(new FileListRequest());
                 });
             }
         }, 100, 3000);
@@ -91,21 +99,39 @@ public class CloudController implements Initializable {
         if (selectedItem == null) {
             return;
         }
-        File file = new File(CLIENT_DIRECTORY, selectedItem);
-        if (!file.exists()) {
+        Path path = CLIENT_DIRECTORY.resolve(selectedItem);
+        if (Files.notExists(path)) {
             return;
         }
-        try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
-            byte[] array = in.readNBytes(BUFFER_SIZE);
-            net.sendFrame(Frame.createStartFrame(selectedItem, file.length(), array));
-            array = in.readNBytes(BUFFER_SIZE);
-            while (array.length != 0) {
-                net.sendFrame(Frame.createContinueFrame(array));
-                array = in.readNBytes(BUFFER_SIZE);
+        try (SeekableByteChannel channel = Files.newByteChannel(path, StandardOpenOption.READ)) {
+            ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
+            byte[] array;
+            final long fileSize = channel.size();
+            long size = channel.read(buffer);
+            buffer.flip();
+            array = new byte[(int) size];
+            buffer.get(array);
+            socketChannel.writeAndFlush(new StartData(selectedItem, size == -1 || fileSize == size, array)).sync();
+            buffer.clear();
+            int length;
+            while ((length = channel.read(buffer)) != -1) {
+                size += length;
+                buffer.flip();
+                if (length == BUFFER_SIZE) {
+                    buffer.get(array);
+                    socketChannel.writeAndFlush(new SubsequentData(selectedItem, fileSize == size, array)).sync();
+                    buffer.clear();
+                } else {
+                    array = new byte[length];
+                    buffer.get(array);
+                    socketChannel.writeAndFlush(new SubsequentData(selectedItem, true, array)).sync();
+                    buffer.clear();
+                }
             }
         } catch (IOException e) {
-            System.err.println("Failed to read file " + "\"" + selectedItem + "\"");
-            e.printStackTrace();
+            log.error("Failed to read file " + "\"" + selectedItem + "\"");
+        } catch (InterruptedException e) {
+            log.error(e.getMessage());
         }
     }
 

@@ -4,13 +4,14 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import lombok.Getter;
 import ru.peshekhonov.cloud.controller.CloudController;
 
 import java.io.IOException;
 
 public class Client extends Application {
 
-    public static Client INSTANCE;
+    private static @Getter Client instance;
     private FXMLLoader fxmlLoader;
 
     @Override
@@ -24,10 +25,19 @@ public class Client extends Application {
 
     @Override
     public void init() throws Exception {
-        INSTANCE = this;
+        instance = this;
     }
 
     public CloudController getCloudController() {
         return fxmlLoader.getController();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        CloudController cloudController = fxmlLoader.getController();
+        if (cloudController.getNet() != null && cloudController.getNet().getHard() != null) {
+            cloudController.getNet().getHard().shutdownGracefully();
+        }
+        super.stop();
     }
 }

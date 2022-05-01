@@ -13,26 +13,21 @@ public class NettyNet {
 
     public static final int SERVER_PORT = 8189;
     public static final String SERVER_HOST = "localhost";
-
-    private @Getter
-    SerializationPipeline pipeline;
+    private final @Getter
+    EventLoopGroup hard;
 
     public NettyNet() {
         Bootstrap bootstrap = new Bootstrap();
-        EventLoopGroup hard = new NioEventLoopGroup(1);
-        pipeline = new SerializationPipeline();
+        hard = new NioEventLoopGroup();
         try {
             bootstrap.group(hard);
             bootstrap.channel(NioSocketChannel.class);
-            bootstrap.handler(pipeline);
+            bootstrap.handler(new SerializationPipeline());
 
             ChannelFuture channelFuture = bootstrap.connect(SERVER_HOST, SERVER_PORT).sync();
             log.info("Client started...");
-            channelFuture.channel().closeFuture().sync();
         } catch (Exception e) {
             log.error("", e);
-        } finally {
-            hard.shutdownGracefully();
         }
     }
 }

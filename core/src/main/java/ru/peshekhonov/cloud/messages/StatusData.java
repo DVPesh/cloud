@@ -21,8 +21,8 @@ public class StatusData extends Message {
         this(filename, status, "");
     }
 
-    @Override
-    public MessageType getMessageType() {
-        return MessageType.STATUS;
-    }
+//    @Override
+//    public MessageType getMessageType() {
+//        return MessageType.STATUS;
+//    }
 }

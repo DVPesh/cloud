@@ -1,5 +1,9 @@
-C:\java\cloud_test\server\src\main\java\ru\peshekhonov\cloud\network\ApplicationHandler.java
-C:\java\cloud_test\server\src\main\java\ru\peshekhonov\cloud\network\auth\AuthService.java
-C:\java\cloud_test\server\src\main\java\ru\peshekhonov\cloud\FileServer.java
-C:\java\cloud_test\server\src\main\java\ru\peshekhonov\cloud\network\Server.java
-C:\java\cloud_test\server\src\main\java\ru\peshekhonov\cloud\network\auth\User.java
+C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\handlers\ContinueHandler.java
+C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\Server.java
+C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\handlers\FileListRequestHandler.java
+C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\FileServer.java
+C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\auth\User.java
+C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\handlers\StartHandler.java
+C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\SerializationPipeline.java
+C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\handlers\UndefinedHandler.java
+C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\auth\AuthService.java

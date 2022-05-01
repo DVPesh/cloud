@@ -14,6 +14,16 @@ import java.io.IOException;
 public class FileListRequestHandler extends SimpleChannelInboundHandler<Message> {
 
     @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        log.info("Client connected...");
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        log.info("Client disconnected...");
+    }
+
+    @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
         if (msg instanceof FileListRequest) {
             log.info("Request on file list is received");

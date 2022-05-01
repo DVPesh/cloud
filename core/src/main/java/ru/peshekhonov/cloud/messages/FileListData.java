@@ -20,8 +20,8 @@ public class FileListData extends Message {
                 .toList();
     }
 
-    @Override
-    public MessageType getMessageType() {
-        return MessageType.FILE_LIST;
-    }
+//    @Override
+//    public MessageType getMessageType() {
+//        return MessageType.FILE_LIST;
+//    }
 }

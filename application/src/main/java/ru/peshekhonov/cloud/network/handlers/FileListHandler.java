@@ -16,7 +16,7 @@ public class FileListHandler extends SimpleChannelInboundHandler<Message> {
         if (msg instanceof FileListData list) {
             log.info("File list from server is received");
             Platform.runLater(() -> {
-                Client.INSTANCE.getCloudController().updateServerListView(list.getFileList());
+                Client.getInstance().getCloudController().updateServerListView(list.getFileList());
             });
         } else {
             ctx.fireChannelRead(msg);

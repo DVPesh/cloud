@@ -1,6 +1,9 @@
-ru\peshekhonov\cloud\network\ApplicationHandler$1.class
-ru\peshekhonov\cloud\network\auth\User.class
+ru\peshekhonov\cloud\network\SerializationPipeline.class
+ru\peshekhonov\cloud\network\handlers\StartHandler.class
 ru\peshekhonov\cloud\FileServer.class
-ru\peshekhonov\cloud\network\ApplicationHandler.class
+ru\peshekhonov\cloud\network\handlers\UndefinedHandler.class
+ru\peshekhonov\cloud\network\auth\User.class
 ru\peshekhonov\cloud\network\auth\AuthService.class
+ru\peshekhonov\cloud\network\handlers\FileListRequestHandler.class
+ru\peshekhonov\cloud\network\handlers\ContinueHandler.class
 ru\peshekhonov\cloud\network\Server.class

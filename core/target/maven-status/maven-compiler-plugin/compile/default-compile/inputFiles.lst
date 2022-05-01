@@ -1,7 +1,8 @@
-C:\java\cloud_test\core\src\main\java\ru\peshekhonov\cloud\frames\SubsequentData.java
-C:\java\cloud_test\core\src\main\java\ru\peshekhonov\cloud\Frame.java
-C:\java\cloud_test\core\src\main\java\ru\peshekhonov\cloud\frames\StartData.java
-C:\java\cloud_test\core\src\main\java\ru\peshekhonov\cloud\FrameType.java
-C:\java\cloud_test\core\src\main\java\ru\peshekhonov\cloud\frames\FileListData.java
-C:\java\cloud_test\core\src\main\java\ru\peshekhonov\cloud\frames\StatusData.java
-C:\java\cloud_test\core\src\main\java\ru\peshekhonov\cloud\StatusType.java
+C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\MessageType.java
+C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\Message.java
+C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\SubsequentData.java
+C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\FileListData.java
+C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\StatusType.java
+C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\StartData.java
+C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\FileListRequest.java
+C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\StatusData.java
