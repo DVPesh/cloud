@@ -6,9 +6,7 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
-import ru.peshekhonov.cloud.network.handlers.FileListHandler;
-import ru.peshekhonov.cloud.network.handlers.StatusHandler;
-import ru.peshekhonov.cloud.network.handlers.UndefinedHandler;
+import ru.peshekhonov.cloud.network.handlers.*;
 
 public class SerializationPipeline extends ChannelInitializer<SocketChannel> {
 
@@ -19,6 +17,8 @@ public class SerializationPipeline extends ChannelInitializer<SocketChannel> {
                 new ObjectEncoder(),
                 new StatusHandler(),
                 new FileListHandler(),
+                new StartHandler(),
+                new ContinueHandler(),
                 new UndefinedHandler()
         );
     }

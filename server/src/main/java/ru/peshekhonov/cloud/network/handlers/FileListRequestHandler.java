@@ -14,12 +14,12 @@ import java.io.IOException;
 public class FileListRequestHandler extends SimpleChannelInboundHandler<Message> {
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) {
         log.info("Client connected...");
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         log.info("Client disconnected...");
     }
 
@@ -28,7 +28,7 @@ public class FileListRequestHandler extends SimpleChannelInboundHandler<Message>
         if (msg instanceof FileListRequest) {
             log.info("Request on file list is received");
             try {
-                ctx.writeAndFlush(new FileListData(Server.serverDir));
+                ctx.writeAndFlush(new FileListData(Server.SERVER_DIR));
             } catch (IOException e) {
                 log.error("Server fails to read list of files");
             }

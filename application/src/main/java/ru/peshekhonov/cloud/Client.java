@@ -11,7 +11,8 @@ import java.io.IOException;
 
 public class Client extends Application {
 
-    private static @Getter Client instance;
+    private static @Getter
+    Client instance;
     private FXMLLoader fxmlLoader;
 
     @Override

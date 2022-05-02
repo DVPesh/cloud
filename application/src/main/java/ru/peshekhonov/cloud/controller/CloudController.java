@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.peshekhonov.cloud.messages.FileListRequest;
+import ru.peshekhonov.cloud.messages.FileRequest;
 import ru.peshekhonov.cloud.messages.StartData;
 import ru.peshekhonov.cloud.messages.SubsequentData;
 import ru.peshekhonov.cloud.network.NettyNet;
@@ -41,8 +42,8 @@ public class CloudController implements Initializable {
     @FXML
     public Button buttonCopyToClient;
 
-    private final static Path CLIENT_DIRECTORY = Path.of("files");
-    private final static int BUFFER_SIZE = 8192;
+    public final static Path CLIENT_DIRECTORY = Path.of("files");
+    public final static int BUFFER_SIZE = 8192;
 
     private ObservableList<String> clientFiles;
     private ObservableList<String> serverFiles;
@@ -137,6 +138,10 @@ public class CloudController implements Initializable {
 
     @FXML
     public void buttonCopyToClientOnActionHandler(ActionEvent actionEvent) {
-
+        String selectedItem = serverListView.getSelectionModel().getSelectedItem();
+        if (selectedItem == null) {
+            return;
+        }
+        socketChannel.writeAndFlush(new FileRequest(selectedItem));
     }
 }

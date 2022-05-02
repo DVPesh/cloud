@@ -1,9 +1,6 @@
 package ru.peshekhonov.cloud.messages;
 
 import lombok.Getter;
-import ru.peshekhonov.cloud.MessageType;
-
-import java.nio.ByteBuffer;
 
 @Getter
 public class SubsequentData extends Message {
@@ -17,9 +14,4 @@ public class SubsequentData extends Message {
         this.endOfFile = endOfFile;
         this.data = data;
     }
-
-//    @Override
-//    public MessageType getMessageType() {
-//        return MessageType.CONTINUE;
-//    }
 }

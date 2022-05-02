@@ -5,5 +5,6 @@ C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\FileServer.java
 C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\auth\User.java
 C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\handlers\StartHandler.java
 C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\SerializationPipeline.java
+C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\handlers\FileRequestHandler.java
 C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\handlers\UndefinedHandler.java
 C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\auth\AuthService.java

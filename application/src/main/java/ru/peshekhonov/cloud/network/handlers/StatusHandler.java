@@ -16,6 +16,8 @@ public class StatusHandler extends SimpleChannelInboundHandler<Message> {
         if (msg instanceof StatusData status) {
             if (status.getStatus() == StatusType.OK) {
                 log.info("File \"{}\" is successfully copied to server", status.getFilename());
+            } else if (status.getStatus() == StatusType.ERROR) {
+                log.error("File \"{}\": {}", status.getFilename(), status.getMessage());
             }
         } else {
             ctx.fireChannelRead(msg);

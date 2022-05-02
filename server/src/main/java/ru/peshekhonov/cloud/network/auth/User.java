@@ -1,7 +1,5 @@
 package ru.peshekhonov.cloud.network.auth;
 
-import java.util.Objects;
-
 public class User {
 
     private final int id;

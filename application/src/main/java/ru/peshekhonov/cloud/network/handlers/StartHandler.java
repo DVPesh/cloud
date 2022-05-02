@@ -5,10 +5,10 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import ru.peshekhonov.cloud.StatusType;
+import ru.peshekhonov.cloud.controller.CloudController;
 import ru.peshekhonov.cloud.messages.Message;
 import ru.peshekhonov.cloud.messages.StartData;
 import ru.peshekhonov.cloud.messages.StatusData;
-import ru.peshekhonov.cloud.network.Server;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -20,7 +20,7 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
 
     private @Getter
     SeekableByteChannel writeChannel;
-    private final ByteBuffer buffer = ByteBuffer.allocate(Server.BUFFER_SIZE);
+    private final ByteBuffer buffer = ByteBuffer.allocate(CloudController.BUFFER_SIZE);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
@@ -29,10 +29,10 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
             log.info("Start frame of the file \"{}\" is received", filename);
             Path path;
             try {
-                path = Server.SERVER_DIR.resolve(filename);
+                path = CloudController.CLIENT_DIRECTORY.resolve(filename);
             } catch (InvalidPathException e) {
                 String str = "the path string cannot be converted to a Path";
-                ctx.writeAndFlush(new StatusData(filename, StatusType.ERROR, str));
+                ctx.writeAndFlush(new StatusData(filename, StatusType.ERROR));
                 log.error("File \"{}\": {}", filename, str);
                 return;
             }

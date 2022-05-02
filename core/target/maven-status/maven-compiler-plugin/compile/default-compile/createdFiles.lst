@@ -1,6 +1,6 @@
 ru\peshekhonov\cloud\messages\SubsequentData.class
-ru\peshekhonov\cloud\MessageType.class
 ru\peshekhonov\cloud\StatusType.class
+ru\peshekhonov\cloud\messages\FileRequest.class
 ru\peshekhonov\cloud\messages\FileListRequest.class
 ru\peshekhonov\cloud\messages\Message.class
 ru\peshekhonov\cloud\messages\StartData.class

@@ -12,7 +12,7 @@ import java.nio.file.Path;
 @Slf4j
 public class Server {
 
-    public final static Path serverDir = Path.of("server/files");
+    public final static Path SERVER_DIR = Path.of("server/files");
     public final static int BUFFER_SIZE = 8192;
 
     public static void start(int port) {

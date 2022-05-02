@@ -6,10 +6,7 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import lombok.Getter;
-import ru.peshekhonov.cloud.network.handlers.ContinueHandler;
-import ru.peshekhonov.cloud.network.handlers.FileListRequestHandler;
-import ru.peshekhonov.cloud.network.handlers.StartHandler;
-import ru.peshekhonov.cloud.network.handlers.UndefinedHandler;
+import ru.peshekhonov.cloud.network.handlers.*;
 
 @Getter
 public class SerializationPipeline extends ChannelInitializer<SocketChannel> {
@@ -22,6 +19,7 @@ public class SerializationPipeline extends ChannelInitializer<SocketChannel> {
                 new FileListRequestHandler(),
                 new StartHandler(),
                 new ContinueHandler(),
+                new FileRequestHandler(),
                 new UndefinedHandler()
         );
     }

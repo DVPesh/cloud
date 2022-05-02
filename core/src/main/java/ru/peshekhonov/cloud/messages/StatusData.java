@@ -1,7 +1,6 @@
 package ru.peshekhonov.cloud.messages;
 
 import lombok.Getter;
-import ru.peshekhonov.cloud.MessageType;
 import ru.peshekhonov.cloud.StatusType;
 
 @Getter
@@ -21,8 +20,4 @@ public class StatusData extends Message {
         this(filename, status, "");
     }
 
-//    @Override
-//    public MessageType getMessageType() {
-//        return MessageType.STATUS;
-//    }
 }

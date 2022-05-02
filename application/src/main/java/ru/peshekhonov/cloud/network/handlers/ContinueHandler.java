@@ -4,10 +4,10 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import ru.peshekhonov.cloud.StatusType;
+import ru.peshekhonov.cloud.controller.CloudController;
 import ru.peshekhonov.cloud.messages.Message;
 import ru.peshekhonov.cloud.messages.StatusData;
 import ru.peshekhonov.cloud.messages.SubsequentData;
-import ru.peshekhonov.cloud.network.Server;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -17,7 +17,7 @@ import java.nio.file.Files;
 @Slf4j
 public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
 
-    private final ByteBuffer buffer = ByteBuffer.allocate(Server.BUFFER_SIZE);
+    private final ByteBuffer buffer = ByteBuffer.allocate(CloudController.BUFFER_SIZE);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
@@ -40,7 +40,7 @@ public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
                 ctx.writeAndFlush(new StatusData(filename, StatusType.ERROR, str));
                 log.error("File \"{}\": {}", filename, str);
                 try {
-                    Files.deleteIfExists(Server.SERVER_DIR.resolve(filename));
+                    Files.deleteIfExists(CloudController.CLIENT_DIRECTORY.resolve(filename));
                 } catch (IOException ex) {
                     log.error("", ex);
                 }
