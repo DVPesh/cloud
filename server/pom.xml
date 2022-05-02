@@ -22,7 +22,6 @@
             <artifactId>core</artifactId>
             <version>1</version>
             <scope>compile</scope>
-            <!--            <scope>compile</scope>-->
         </dependency>
         <dependency>
             <groupId>org.xerial</groupId>
