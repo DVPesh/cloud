@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import ru.peshekhonov.cloud.Client;
 import ru.peshekhonov.cloud.messages.FileListData;
 import ru.peshekhonov.cloud.messages.Message;
+import ru.peshekhonov.cloud.network.controller.CloudController;
 
 @Slf4j
 public class FileListHandler extends SimpleChannelInboundHandler<Message> {
@@ -16,7 +17,9 @@ public class FileListHandler extends SimpleChannelInboundHandler<Message> {
         if (msg instanceof FileListData list) {
             log.info("File list from server is received");
             Platform.runLater(() -> {
-                Client.getInstance().getCloudController().updateServerListView(list.getFileList());
+                CloudController controller =Client.getInstance().getCloudController();
+                controller.setServerDir(list.getDirectory());
+                controller.updateServerListView(list.getFileList());
             });
         } else {
             ctx.fireChannelRead(msg);
