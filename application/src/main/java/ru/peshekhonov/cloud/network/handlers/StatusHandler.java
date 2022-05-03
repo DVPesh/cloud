@@ -14,10 +14,11 @@ public class StatusHandler extends SimpleChannelInboundHandler<Message> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
         if (msg instanceof StatusData status) {
+            String filename = status.getPath().getFileName().toString();
             if (status.getStatus() == StatusType.OK) {
-                log.info("File \"{}\" is successfully copied to server", status.getFilename());
+                log.info("File \"{}\" is successfully copied", filename);
             } else if (status.getStatus() == StatusType.ERROR) {
-                log.error("File \"{}\": {}", status.getFilename(), status.getMessage());
+                log.error("File \"{}\": {}", filename, status.getMessage());
             }
         } else {
             ctx.fireChannelRead(msg);

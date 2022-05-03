@@ -1,4 +1,4 @@
-package ru.peshekhonov.cloud.controller;
+package ru.peshekhonov.cloud.network.controller;
 
 import io.netty.channel.Channel;
 import javafx.application.Platform;
@@ -12,23 +12,21 @@ import javafx.scene.control.ListView;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import ru.peshekhonov.cloud.Configuration;
 import ru.peshekhonov.cloud.messages.FileListRequest;
 import ru.peshekhonov.cloud.messages.FileRequest;
 import ru.peshekhonov.cloud.messages.StartData;
 import ru.peshekhonov.cloud.messages.SubsequentData;
 import ru.peshekhonov.cloud.network.NettyNet;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 @Slf4j
 public class CloudController implements Initializable {
@@ -42,15 +40,16 @@ public class CloudController implements Initializable {
     @FXML
     public Button buttonCopyToClient;
 
-    public final static Path CLIENT_DIRECTORY = Path.of("files");
-    public final static int BUFFER_SIZE = 8192;
-
     private ObservableList<String> clientFiles;
     private ObservableList<String> serverFiles;
     private @Getter
     NettyNet net;
     private @Setter
     Channel socketChannel;
+    private @Setter
+    Path serverDir;
+    private Path clientDir = Path.of("files");
+    private final Map<Path, Thread> taskMap = new HashMap<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -82,10 +81,10 @@ public class CloudController implements Initializable {
     public void updateClientListView() {
         try {
             int selectedIndex = clientListView.getSelectionModel().getSelectedIndex();
-            clientFiles.setAll(Files.list(CLIENT_DIRECTORY).map(Path::getFileName).map(Path::toString).toList());
+            clientFiles.setAll(Files.list(clientDir).map(Path::getFileName).map(Path::toString).toList());
             clientListView.getSelectionModel().select(selectedIndex);
         } catch (IOException e) {
-            log.error("Fail to read list of files");
+            log.error("Failed to read list of files");
         }
     }
 
@@ -96,44 +95,51 @@ public class CloudController implements Initializable {
 
     @FXML
     public void buttonCopyToServerOnActionHandler(ActionEvent actionEvent) {
-        String selectedItem = clientListView.getSelectionModel().getSelectedItem();
+        final String selectedItem = clientListView.getSelectionModel().getSelectedItem();
         if (selectedItem == null) {
             return;
         }
-        Path path = CLIENT_DIRECTORY.resolve(selectedItem);
-        if (Files.notExists(path)) {
+        final Path clientPath = clientDir.resolve(selectedItem);
+        final Path serverPath = serverDir.resolve(selectedItem);
+        if (Files.notExists(clientPath)) {
             return;
         }
-        try (SeekableByteChannel channel = Files.newByteChannel(path, StandardOpenOption.READ)) {
-            ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
-            byte[] array;
-            final long fileSize = channel.size();
-            long size = channel.read(buffer);
-            buffer.flip();
-            array = new byte[(int) size];
-            buffer.get(array);
-            socketChannel.writeAndFlush(new StartData(selectedItem, size == -1 || fileSize == size, array)).sync();
-            buffer.clear();
-            int length;
-            while ((length = channel.read(buffer)) != -1) {
-                size += length;
+        Thread thread = new Thread(() -> {
+            try (SeekableByteChannel channel = Files.newByteChannel(clientPath, StandardOpenOption.READ)) {
+                ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
+                byte[] array;
+                final long fileSize = channel.size();
+                long size = channel.read(buffer);
                 buffer.flip();
-                if (length == BUFFER_SIZE) {
-                    buffer.get(array);
-                    socketChannel.writeAndFlush(new SubsequentData(selectedItem, fileSize == size, array)).sync();
-                    buffer.clear();
-                } else {
-                    array = new byte[length];
-                    buffer.get(array);
-                    socketChannel.writeAndFlush(new SubsequentData(selectedItem, true, array)).sync();
-                    buffer.clear();
+                array = new byte[(int) size];
+                buffer.get(array);
+                socketChannel.writeAndFlush(new StartData(serverPath, size == -1 || fileSize == size, array)).sync();
+                buffer.clear();
+                int length;
+                while ((length = channel.read(buffer)) != -1) {
+                    if (Thread.currentThread().isInterrupted()) {
+                        break;
+                    }
+                    size += length;
+                    buffer.flip();
+                    if (length == Configuration.BUFFER_SIZE) {
+                        buffer.get(array);
+                        socketChannel.writeAndFlush(new SubsequentData(serverPath, fileSize == size, array)).sync();
+                        buffer.clear();
+                    } else {
+                        array = new byte[length];
+                        buffer.get(array);
+                        socketChannel.writeAndFlush(new SubsequentData(serverPath, true, array)).sync();
+                        buffer.clear();
+                    }
                 }
+            } catch (IOException e) {
+                log.error("Failed to read file " + "\"" + selectedItem + "\"");
+            } catch (InterruptedException e) {
+                log.error(e.getMessage());
             }
-        } catch (IOException e) {
-            log.error("Failed to read file " + "\"" + selectedItem + "\"");
-        } catch (InterruptedException e) {
-            log.error(e.getMessage());
-        }
+        });
+        taskMap.put(serverPath, thread);
     }
 
     @FXML

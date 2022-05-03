@@ -7,11 +7,11 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import ru.peshekhonov.cloud.Configuration;
 
 @Slf4j
 public class NettyNet {
 
-    public static final int SERVER_PORT = 8189;
     public static final String SERVER_HOST = "localhost";
     private final @Getter
     EventLoopGroup hard;
@@ -24,7 +24,7 @@ public class NettyNet {
             bootstrap.channel(NioSocketChannel.class);
             bootstrap.handler(new SerializationPipeline());
 
-            ChannelFuture channelFuture = bootstrap.connect(SERVER_HOST, SERVER_PORT).sync();
+            ChannelFuture channelFuture = bootstrap.connect(SERVER_HOST, Configuration.SERVER_PORT).sync();
             log.info("Client started...");
         } catch (Exception e) {
             log.error("", e);

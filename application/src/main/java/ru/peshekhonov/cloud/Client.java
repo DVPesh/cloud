@@ -5,7 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import lombok.Getter;
-import ru.peshekhonov.cloud.controller.CloudController;
+import ru.peshekhonov.cloud.network.controller.CloudController;
 
 import java.io.IOException;
 

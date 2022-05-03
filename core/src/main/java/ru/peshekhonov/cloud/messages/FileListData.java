@@ -11,11 +11,13 @@ import java.util.List;
 public class FileListData extends Message {
 
     private final List<String> fileList;
+    private final Path directory;
 
     public FileListData(Path path) throws IOException {
         this.fileList = Files.list(path)
                 .map(Path::getFileName)
                 .map(Path::toString)
                 .toList();
+        this.directory = path.normalize().toAbsolutePath();
     }
 }

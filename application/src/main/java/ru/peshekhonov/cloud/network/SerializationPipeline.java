@@ -16,9 +16,9 @@ public class SerializationPipeline extends ChannelInitializer<SocketChannel> {
                 new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
                 new ObjectEncoder(),
                 new StatusHandler(),
-                new FileListHandler(),
+                new PathListHandler(),
                 new StartHandler(),
-                new ContinueHandler(),
+//                new ContinueHandler(),
                 new UndefinedHandler()
         );
     }

@@ -30,7 +30,7 @@ public class FileListRequestHandler extends SimpleChannelInboundHandler<Message>
             try {
                 ctx.writeAndFlush(new FileListData(Server.SERVER_DIR));
             } catch (IOException e) {
-                log.error("Server fails to read list of files");
+                log.error("Server failed to read list of files");
             }
         } else {
             ctx.fireChannelRead(msg);

@@ -21,7 +21,7 @@ public class FileRequestHandler extends SimpleChannelInboundHandler<Message> {
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
         if (msg instanceof FileRequest request) {
             Thread thread = new Thread(() -> {
-                String filename = request.getFilename();
+                String filename = request.getPath();
                 log.info("File request frame for the filename \"{}\" is received", filename);
                 Path path = Server.SERVER_DIR.resolve(filename);
                 if (Files.notExists(path)) {
