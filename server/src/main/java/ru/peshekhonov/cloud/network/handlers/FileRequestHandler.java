@@ -3,9 +3,10 @@ package ru.peshekhonov.cloud.network.handlers;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
+import ru.peshekhonov.cloud.Configuration;
 import ru.peshekhonov.cloud.StatusType;
+import ru.peshekhonov.cloud.handlers.StatusHandler;
 import ru.peshekhonov.cloud.messages.*;
-import ru.peshekhonov.cloud.network.Server;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -20,51 +21,49 @@ public class FileRequestHandler extends SimpleChannelInboundHandler<Message> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
         if (msg instanceof FileRequest request) {
+            final String filename = request.getSource().getFileName().toString();
+            final Path destination = request.getDestination();
+            final Path source = request.getSource();
+            if (Files.notExists(source)) {
+                ctx.writeAndFlush(new StatusData(source, StatusType.ERROR2, "the file does not exist on server"));
+                log.error("File \"{}\" does not exist", filename);
+                return;
+            }
             Thread thread = new Thread(() -> {
-                String filename = request.getPath();
-                log.info("File request frame for the filename \"{}\" is received", filename);
-                Path path = Server.SERVER_DIR.resolve(filename);
-                if (Files.notExists(path)) {
-                    String str = "the file does not exist";
-                    ctx.writeAndFlush(new StatusData(filename, StatusType.ERROR, str));
-                    log.error("File \"{}\": {}", filename, str);
-                    return;
-                }
-                try (SeekableByteChannel channel = Files.newByteChannel(path, StandardOpenOption.READ)) {
-                    ByteBuffer buffer = ByteBuffer.allocate(Server.BUFFER_SIZE);
+                try (SeekableByteChannel channel = Files.newByteChannel(source, StandardOpenOption.READ)) {
+                    ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
                     byte[] array;
                     final long fileSize = channel.size();
                     long size = channel.read(buffer);
                     buffer.flip();
                     array = new byte[(int) size];
                     buffer.get(array);
-                    ctx.writeAndFlush(new StartData(filename, size == -1 || fileSize == size, array)).sync();
+                    ctx.writeAndFlush(new StartData(destination, size == -1 || fileSize == size, array)).sync();
                     buffer.clear();
                     int length;
                     while ((length = channel.read(buffer)) != -1) {
+                        if (Thread.currentThread().isInterrupted()) {
+                            break;
+                        }
                         size += length;
                         buffer.flip();
-                        if (length == Server.BUFFER_SIZE) {
+                        if (length == Configuration.BUFFER_SIZE) {
                             buffer.get(array);
-                            ctx.writeAndFlush(new SubsequentData(filename, fileSize == size, array)).sync();
+                            ctx.writeAndFlush(new SubsequentData(destination, fileSize == size, array)).sync();
                             buffer.clear();
                         } else {
                             array = new byte[length];
                             buffer.get(array);
-                            ctx.writeAndFlush(new SubsequentData(filename, true, array)).sync();
+                            ctx.writeAndFlush(new SubsequentData(destination, true, array)).sync();
                             buffer.clear();
                         }
                     }
-                } catch (IOException e) {
-                    String str = "server failed to read the file";
-                    ctx.writeAndFlush(new StatusData(filename, StatusType.ERROR, str));
-                    log.error("Failed to read file " + "\"" + filename + "\"");
-                } catch (InterruptedException e) {
-                    ctx.writeAndFlush(new StatusData(filename, StatusType.ERROR, "server failed to read the file ->" + e.getMessage()));
-                    log.error("Failed to read file " + "\"" + filename + "\": " + e.getMessage());
+                } catch (IOException | InterruptedException e) {
+                    ctx.writeAndFlush(new StatusData(source, StatusType.ERROR2, "server failed to read the file"));
+                    log.error("Failed to read the file " + "\"" + filename + "\": " + e.getMessage());
                 }
             });
-            thread.setDaemon(true);
+            ctx.pipeline().get(StatusHandler.class).getTaskMap().put(destination, thread);
             thread.start();
         } else {
             ctx.fireChannelRead(msg);

@@ -1,4 +1,4 @@
-package ru.peshekhonov.cloud.network.handlers;
+package ru.peshekhonov.cloud.handlers;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

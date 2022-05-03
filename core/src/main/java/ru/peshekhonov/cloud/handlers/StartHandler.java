@@ -44,11 +44,11 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
                     log.info("The file \"{}\" is successfully saved", filename);
                 }
             } catch (FileAlreadyExistsException e) {
-                ctx.writeAndFlush(new StatusData(path, StatusType.ERROR, "the file already exists"));
+                ctx.writeAndFlush(new StatusData(path, StatusType.ERROR1, "the file already exists"));
                 log.error("File \"{}\" already exists", filename);
             } catch (IOException e) {
                 String str = "I/O error";
-                ctx.writeAndFlush(new StatusData(path, StatusType.ERROR, str));
+                ctx.writeAndFlush(new StatusData(path, StatusType.ERROR1, str));
                 log.error("File \"{}\": {}", filename, str);
                 try {
                     if (writeChannel != null) {

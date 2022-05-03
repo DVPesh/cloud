@@ -17,12 +17,18 @@ public class FileListHandler extends SimpleChannelInboundHandler<Message> {
         if (msg instanceof FileListData list) {
             log.info("File list from server is received");
             Platform.runLater(() -> {
-                CloudController controller =Client.getInstance().getCloudController();
+                CloudController controller = Client.getInstance().getCloudController();
                 controller.setServerDir(list.getDirectory());
                 controller.updateServerListView(list.getFileList());
             });
         } else {
             ctx.fireChannelRead(msg);
         }
+    }
+
+    @Override
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        Client.getInstance().getCloudController().setSocketChannel(ctx.channel());
+        log.info("Channel registered");
     }
 }

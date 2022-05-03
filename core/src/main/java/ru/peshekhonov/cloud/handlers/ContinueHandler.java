@@ -38,7 +38,7 @@ public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
                 }
             } catch (IOException e) {
                 String str = "I/O error";
-                ctx.writeAndFlush(new StatusData(path, StatusType.ERROR, str));
+                ctx.writeAndFlush(new StatusData(path, StatusType.ERROR1, str));
                 log.error("File \"{}\": {}", filename, str);
                 try {
                     writeChannel.close();

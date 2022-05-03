@@ -7,9 +7,11 @@ import java.nio.file.Path;
 @Getter
 public class FileRequest extends Message {
 
-    private final Path path;
+    private final Path source;
+    private final Path destination;
 
-    public FileRequest(Path path) {
-        this.path = path;
+    public FileRequest(Path source, Path destination) {
+        this.source = source;
+        this.destination = destination;
     }
 }

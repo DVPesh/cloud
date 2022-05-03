@@ -1,5 +1,8 @@
 package ru.peshekhonov.cloud.network.auth;
 
+import lombok.Getter;
+
+@Getter
 public class User {
 
     private final int id;
@@ -13,21 +16,4 @@ public class User {
         this.password = password;
         this.userName = userName;
     }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
 }

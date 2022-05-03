@@ -13,11 +13,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.peshekhonov.cloud.Configuration;
-import ru.peshekhonov.cloud.messages.FileListRequest;
-import ru.peshekhonov.cloud.messages.FileRequest;
-import ru.peshekhonov.cloud.messages.StartData;
-import ru.peshekhonov.cloud.messages.SubsequentData;
+import ru.peshekhonov.cloud.messages.*;
 import ru.peshekhonov.cloud.network.NettyNet;
+import ru.peshekhonov.cloud.handlers.StatusHandler;
 
 import java.io.IOException;
 import java.net.URL;
@@ -49,7 +47,6 @@ public class CloudController implements Initializable {
     private @Setter
     Path serverDir;
     private Path clientDir = Path.of("files");
-    private final Map<Path, Thread> taskMap = new HashMap<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -139,7 +136,8 @@ public class CloudController implements Initializable {
                 log.error(e.getMessage());
             }
         });
-        taskMap.put(serverPath, thread);
+        socketChannel.pipeline().get(StatusHandler.class).getTaskMap().put(serverPath, thread);
+        thread.start();
     }
 
     @FXML
@@ -148,6 +146,8 @@ public class CloudController implements Initializable {
         if (selectedItem == null) {
             return;
         }
-        socketChannel.writeAndFlush(new FileRequest(selectedItem));
+        Path destination = clientDir.resolve(selectedItem).normalize().toAbsolutePath();
+        Path source = serverDir.resolve(selectedItem);
+        socketChannel.writeAndFlush(new FileRequest(source, destination));
     }
 }
