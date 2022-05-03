@@ -13,7 +13,7 @@ import ru.peshekhonov.cloud.network.controller.CloudController;
 public class FileListHandler extends SimpleChannelInboundHandler<Message> {
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Message msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
         if (msg instanceof FileListData list) {
             log.info("File list from server is received");
             Platform.runLater(() -> {
@@ -27,7 +27,7 @@ public class FileListHandler extends SimpleChannelInboundHandler<Message> {
     }
 
     @Override
-    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+    public void channelRegistered(ChannelHandlerContext ctx) {
         Client.getInstance().getCloudController().setSocketChannel(ctx.channel());
         log.info("Channel registered");
     }

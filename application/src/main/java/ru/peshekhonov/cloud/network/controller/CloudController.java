@@ -131,10 +131,11 @@ public class CloudController implements Initializable {
                     }
                 }
             } catch (IOException e) {
-                log.error("Failed to read file " + "\"" + selectedItem + "\"");
+                log.error("[ {} ] client failed to read the file", selectedItem);
             } catch (InterruptedException e) {
                 log.error(e.getMessage());
             }
+            socketChannel.pipeline().get(StatusHandler.class).getTaskMap().remove(serverPath);
         });
         socketChannel.pipeline().get(StatusHandler.class).getTaskMap().put(serverPath, thread);
         thread.start();

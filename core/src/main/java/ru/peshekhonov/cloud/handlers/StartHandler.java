@@ -41,15 +41,14 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
                 if (startdata.isEndOfFile()) {
                     writeChannel.close();
                     ctx.writeAndFlush(new StatusData(path, StatusType.OK));
-                    log.info("The file \"{}\" is successfully saved", filename);
+                    log.info("[ {} ] {}", filename, StatusType.OK.getText());
                 }
             } catch (FileAlreadyExistsException e) {
-                ctx.writeAndFlush(new StatusData(path, StatusType.ERROR1, "the file already exists"));
-                log.error("File \"{}\" already exists", filename);
+                ctx.writeAndFlush(new StatusData(path, StatusType.HANDLED_ERROR2));
+                log.info("[ {} ] {}", filename, StatusType.HANDLED_ERROR2.getText());
             } catch (IOException e) {
-                String str = "I/O error";
-                ctx.writeAndFlush(new StatusData(path, StatusType.ERROR1, str));
-                log.error("File \"{}\": {}", filename, str);
+                ctx.writeAndFlush(new StatusData(path, StatusType.HANDLED_ERROR1));
+                log.info("[ {} ] {}", filename, StatusType.HANDLED_ERROR1.getText());
                 try {
                     if (writeChannel != null) {
                         writeChannel.close();

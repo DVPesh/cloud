@@ -25,8 +25,8 @@ public class FileRequestHandler extends SimpleChannelInboundHandler<Message> {
             final Path destination = request.getDestination();
             final Path source = request.getSource();
             if (Files.notExists(source)) {
-                ctx.writeAndFlush(new StatusData(source, StatusType.ERROR2, "the file does not exist on server"));
-                log.error("File \"{}\" does not exist", filename);
+                ctx.writeAndFlush(new StatusData(source, StatusType.ERROR1));
+                log.info("[ {} ] {}", filename, StatusType.ERROR1.getText());
                 return;
             }
             Thread thread = new Thread(() -> {
@@ -59,9 +59,10 @@ public class FileRequestHandler extends SimpleChannelInboundHandler<Message> {
                         }
                     }
                 } catch (IOException | InterruptedException e) {
-                    ctx.writeAndFlush(new StatusData(source, StatusType.ERROR2, "server failed to read the file"));
-                    log.error("Failed to read the file " + "\"" + filename + "\": " + e.getMessage());
+                    ctx.writeAndFlush(new StatusData(source, StatusType.ERROR2));
+                    log.info("[ {} ] {}: {}", filename, StatusType.ERROR2.getText(), e.getMessage());
                 }
+                ctx.pipeline().get(StatusHandler.class).getTaskMap().remove(destination);
             });
             ctx.pipeline().get(StatusHandler.class).getTaskMap().put(destination, thread);
             thread.start();

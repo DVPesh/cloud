@@ -34,12 +34,11 @@ public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
                 if (data.isEndOfFile()) {
                     writeChannel.close();
                     ctx.writeAndFlush(new StatusData(path, StatusType.OK));
-                    log.info("The file \"{}\" is successfully saved", filename);
+                    log.info("[ {} ] {}", filename, StatusType.OK.getText());
                 }
             } catch (IOException e) {
-                String str = "I/O error";
-                ctx.writeAndFlush(new StatusData(path, StatusType.ERROR1, str));
-                log.error("File \"{}\": {}", filename, str);
+                ctx.writeAndFlush(new StatusData(path, StatusType.HANDLED_ERROR1));
+                log.info("[ {} ] {}", filename, StatusType.HANDLED_ERROR1.getText());
                 try {
                     writeChannel.close();
                     Files.deleteIfExists(path);
