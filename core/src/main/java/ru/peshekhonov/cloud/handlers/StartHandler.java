@@ -23,6 +23,8 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
     private final @Getter
     Map<Path, SeekableByteChannel> map = new HashMap<>();
 
+    ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
         if (msg instanceof StartData startdata) {
@@ -33,7 +35,6 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
             try {
                 writeChannel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
                 map.put(path, writeChannel);
-                ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
                 buffer.put(startdata.getData());
                 buffer.flip();
                 writeChannel.write(buffer);
@@ -46,10 +47,10 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
                 }
             } catch (FileAlreadyExistsException e) {
                 ctx.writeAndFlush(new StatusData(path, StatusType.HANDLED_ERROR2));
-                log.info("[ {} ] {}", filename, StatusType.HANDLED_ERROR2.getText());
+                log.error("[ {} ] {}", filename, StatusType.HANDLED_ERROR2.getText());
             } catch (IOException e) {
                 ctx.writeAndFlush(new StatusData(path, StatusType.HANDLED_ERROR1));
-                log.info("[ {} ] {}", filename, StatusType.HANDLED_ERROR1.getText());
+                log.error("[ {} ] {}", filename, StatusType.HANDLED_ERROR1.getText());
                 try {
                     if (writeChannel != null) {
                         writeChannel.close();

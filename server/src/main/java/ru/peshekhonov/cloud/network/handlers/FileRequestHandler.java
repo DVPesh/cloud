@@ -26,7 +26,7 @@ public class FileRequestHandler extends SimpleChannelInboundHandler<Message> {
             final Path source = request.getSource();
             if (Files.notExists(source)) {
                 ctx.writeAndFlush(new StatusData(source, StatusType.ERROR1));
-                log.info("[ {} ] {}", filename, StatusType.ERROR1.getText());
+                log.error("[ {} ] {}", filename, StatusType.ERROR1.getText());
                 return;
             }
             Thread thread = new Thread(() -> {
@@ -60,7 +60,7 @@ public class FileRequestHandler extends SimpleChannelInboundHandler<Message> {
                     }
                 } catch (IOException | InterruptedException e) {
                     ctx.writeAndFlush(new StatusData(source, StatusType.ERROR2));
-                    log.info("[ {} ] {}: {}", filename, StatusType.ERROR2.getText(), e.getMessage());
+                    log.error("[ {} ] {}: {}", filename, StatusType.ERROR2.getText(), e.getMessage());
                 }
                 ctx.pipeline().get(StatusHandler.class).getTaskMap().remove(destination);
             });

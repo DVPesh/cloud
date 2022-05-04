@@ -19,6 +19,8 @@ import java.util.Map;
 @Slf4j
 public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
 
+    ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
         if (msg instanceof SubsequentData data) {
@@ -26,9 +28,8 @@ public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
             Map<Path, SeekableByteChannel> map = ctx.pipeline().get(StartHandler.class).getMap();
             SeekableByteChannel writeChannel = map.get(path);
             String filename = path.getFileName().toString();
-            log.info("Continue frame of the file \"{}\" is received", filename);
+            log.debug("Continue frame of the file \"{}\" is received", filename);
             try {
-                ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
                 buffer.put(data.getData());
                 buffer.flip();
                 writeChannel.write(buffer);
@@ -41,7 +42,7 @@ public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
                 }
             } catch (IOException e) {
                 ctx.writeAndFlush(new StatusData(path, StatusType.HANDLED_ERROR1));
-                log.info("[ {} ] {}", filename, StatusType.HANDLED_ERROR1.getText());
+                log.error("[ {} ] {}", filename, StatusType.HANDLED_ERROR1.getText());
                 try {
                     writeChannel.close();
                     map.remove(path);
