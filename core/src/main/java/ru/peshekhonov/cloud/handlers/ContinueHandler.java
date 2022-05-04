@@ -19,7 +19,7 @@ import java.util.Map;
 @Slf4j
 public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
 
-    ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
+    private final ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
