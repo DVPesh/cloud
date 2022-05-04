@@ -23,7 +23,7 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
     private final @Getter
     Map<Path, SeekableByteChannel> map = new HashMap<>();
 
-    ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
+    private final ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
