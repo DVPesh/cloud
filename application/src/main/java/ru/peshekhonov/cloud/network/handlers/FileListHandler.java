@@ -18,7 +18,7 @@ public class FileListHandler extends SimpleChannelInboundHandler<Message> {
             log.info("File list from server is received");
             Platform.runLater(() -> {
                 CloudController controller = Client.getInstance().getCloudController();
-                controller.setServerDir(list.getDirectory());
+                controller.setServerDir((list.getDirectory()));
                 controller.updateServerListView(list.getFileList());
             });
         } else {

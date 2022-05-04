@@ -40,6 +40,7 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
                 buffer.clear();
                 if (startdata.isEndOfFile()) {
                     writeChannel.close();
+                    map.remove(path);
                     ctx.writeAndFlush(new StatusData(path, StatusType.OK));
                     log.info("[ {} ] {}", filename, StatusType.OK.getText());
                 }
@@ -53,6 +54,7 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
                     if (writeChannel != null) {
                         writeChannel.close();
                     }
+                    map.remove(path);
                     Files.deleteIfExists(path);
                 } catch (IOException ex) {
                     log.error("File \"" + filename + "\"", ex);

@@ -4,16 +4,21 @@ import lombok.Getter;
 
 import java.nio.file.Path;
 
-@Getter
 public class StartData extends Message {
 
-    private final Path path;
-    private final boolean endOfFile;
-    private final byte[] data;
+    private final String path;
+    private final @Getter
+    boolean endOfFile;
+    private final @Getter
+    byte[] data;
 
     public StartData(Path path, boolean endOfFile, byte[] data) {
-        this.path = path;
+        this.path = path.toString();
         this.endOfFile = endOfFile;
         this.data = data;
+    }
+
+    public Path getPath() {
+        return Path.of(path);
     }
 }

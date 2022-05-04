@@ -5,15 +5,16 @@ import ru.peshekhonov.cloud.StatusType;
 
 import java.nio.file.Path;
 
-@Getter
 public class StatusData extends Message {
 
-    private final Path path;
-    private final StatusType status;
-    private final String message;
+    private final String path;
+    private final @Getter
+    StatusType status;
+    private final @Getter
+    String message;
 
     public StatusData(Path path, StatusType status, String message) {
-        this.path = path;
+        this.path = path.toString();
         this.status = status;
         this.message = message;
     }
@@ -22,4 +23,7 @@ public class StatusData extends Message {
         this(path, status, "");
     }
 
+    public Path getPath() {
+        return Path.of(path);
+    }
 }

@@ -1,10 +1,6 @@
-ru\peshekhonov\cloud\controller\CloudController$1.class
+ru\peshekhonov\cloud\network\controller\CloudController.class
 ru\peshekhonov\cloud\network\SerializationPipeline.class
-ru\peshekhonov\cloud\controller\CloudController.class
-ru\peshekhonov\cloud\network\handlers\StartHandler.class
-ru\peshekhonov\cloud\network\handlers\UndefinedHandler.class
 ru\peshekhonov\cloud\network\NettyNet.class
+ru\peshekhonov\cloud\network\controller\CloudController$1.class
 ru\peshekhonov\cloud\network\handlers\FileListHandler.class
-ru\peshekhonov\cloud\network\handlers\StatusHandler.class
 ru\peshekhonov\cloud\Client.class
-ru\peshekhonov\cloud\network\handlers\ContinueHandler.class

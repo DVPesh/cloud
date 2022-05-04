@@ -14,6 +14,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 @Slf4j
 public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
@@ -22,7 +23,8 @@ public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
         if (msg instanceof SubsequentData data) {
             Path path = data.getPath();
-            SeekableByteChannel writeChannel = ctx.pipeline().get(StartHandler.class).getMap().get(path);
+            Map<Path, SeekableByteChannel> map = ctx.pipeline().get(StartHandler.class).getMap();
+            SeekableByteChannel writeChannel = map.get(path);
             String filename = path.getFileName().toString();
             log.info("Continue frame of the file \"{}\" is received", filename);
             try {
@@ -33,6 +35,7 @@ public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
                 buffer.clear();
                 if (data.isEndOfFile()) {
                     writeChannel.close();
+                    map.remove(path);
                     ctx.writeAndFlush(new StatusData(path, StatusType.OK));
                     log.info("[ {} ] {}", filename, StatusType.OK.getText());
                 }
@@ -41,6 +44,7 @@ public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
                 log.info("[ {} ] {}", filename, StatusType.HANDLED_ERROR1.getText());
                 try {
                     writeChannel.close();
+                    map.remove(path);
                     Files.deleteIfExists(path);
                 } catch (IOException ex) {
                     log.error("File \"" + filename + "\"", ex);

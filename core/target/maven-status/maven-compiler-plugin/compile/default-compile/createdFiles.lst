@@ -1,8 +1,14 @@
+ru\peshekhonov\cloud\handlers\UndefinedHandler.class
 ru\peshekhonov\cloud\messages\SubsequentData.class
+ru\peshekhonov\cloud\Configuration.class
+ru\peshekhonov\cloud\handlers\StatusHandler.class
+ru\peshekhonov\cloud\handlers\ContinueHandler.class
+ru\peshekhonov\cloud\messages\FileListRequest.class
+ru\peshekhonov\cloud\handlers\StatusHandler$1.class
+ru\peshekhonov\cloud\messages\StartData.class
+ru\peshekhonov\cloud\messages\FileListData.class
 ru\peshekhonov\cloud\StatusType.class
 ru\peshekhonov\cloud\messages\FileRequest.class
-ru\peshekhonov\cloud\messages\FileListRequest.class
 ru\peshekhonov\cloud\messages\Message.class
-ru\peshekhonov\cloud\messages\StartData.class
 ru\peshekhonov\cloud\messages\StatusData.class
-ru\peshekhonov\cloud\messages\FileListData.class
+ru\peshekhonov\cloud\handlers\StartHandler.class

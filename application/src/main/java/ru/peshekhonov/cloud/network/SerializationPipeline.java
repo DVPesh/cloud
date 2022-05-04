@@ -15,7 +15,7 @@ import ru.peshekhonov.cloud.network.handlers.*;
 public class SerializationPipeline extends ChannelInitializer<SocketChannel> {
 
     @Override
-    protected void initChannel(SocketChannel socketChannel) throws Exception {
+    protected void initChannel(SocketChannel socketChannel) {
         socketChannel.pipeline().addLast(
                 new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
                 new ObjectEncoder(),
