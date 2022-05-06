@@ -60,9 +60,10 @@ public class FileRequestHandler extends SimpleChannelInboundHandler<Message> {
                     }
                 } catch (IOException | InterruptedException e) {
                     ctx.writeAndFlush(new StatusData(source, StatusType.ERROR2));
-                    log.error("[ {} ] {}: {}", filename, StatusType.ERROR2.getText(), e.getMessage());
+                    log.error("[ {} ] {}", filename, StatusType.ERROR2.getText());
+                } finally {
+                    ctx.pipeline().get(StatusHandler.class).getTaskMap().remove(destination);
                 }
-                ctx.pipeline().get(StatusHandler.class).getTaskMap().remove(destination);
             });
             ctx.pipeline().get(StatusHandler.class).getTaskMap().put(destination, thread);
             thread.start();

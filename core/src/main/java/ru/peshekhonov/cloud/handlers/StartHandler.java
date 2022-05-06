@@ -13,7 +13,10 @@ import ru.peshekhonov.cloud.messages.StatusData;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.*;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +38,7 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
             try {
                 writeChannel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
                 map.put(path, writeChannel);
+                buffer.clear();
                 buffer.put(startdata.getData());
                 buffer.flip();
                 writeChannel.write(buffer);
@@ -54,9 +58,9 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
                 try {
                     if (writeChannel != null) {
                         writeChannel.close();
+                        map.remove(path);
+                        Files.deleteIfExists(path);
                     }
-                    map.remove(path);
-                    Files.deleteIfExists(path);
                 } catch (IOException ex) {
                     log.error("File \"" + filename + "\"", ex);
                 }

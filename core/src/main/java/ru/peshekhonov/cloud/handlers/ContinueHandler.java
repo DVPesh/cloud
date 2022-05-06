@@ -30,6 +30,10 @@ public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
             String filename = path.getFileName().toString();
             log.debug("Continue frame of the file \"{}\" is received", filename);
             try {
+                if (writeChannel == null || !writeChannel.isOpen()) {
+                    return;
+                }
+                buffer.clear();
                 buffer.put(data.getData());
                 buffer.flip();
                 writeChannel.write(buffer);
