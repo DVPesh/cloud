@@ -25,6 +25,8 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
 
     private final @Getter
     Map<Path, SeekableByteChannel> map = new HashMap<>();
+    private final @Getter
+    Map<Path, Long> timeMap = new HashMap<>();
 
     private final ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
 
@@ -48,7 +50,9 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
                     map.remove(path);
                     ctx.writeAndFlush(new StatusData(path, StatusType.OK));
                     log.info("[ {} ] {}", filename, StatusType.OK.getText());
+                    return;
                 }
+                timeMap.put(path, System.currentTimeMillis());
             } catch (FileAlreadyExistsException e) {
                 ctx.writeAndFlush(new StatusData(path, StatusType.HANDLED_ERROR2));
                 log.error("[ {} ] {}", filename, StatusType.HANDLED_ERROR2.getText());
