@@ -5,6 +5,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import ru.peshekhonov.cloud.Configuration;
+import ru.peshekhonov.cloud.Metadata;
 import ru.peshekhonov.cloud.StatusType;
 import ru.peshekhonov.cloud.messages.Message;
 import ru.peshekhonov.cloud.messages.StartData;
@@ -24,9 +25,7 @@ import java.util.Map;
 public class StartHandler extends SimpleChannelInboundHandler<Message> {
 
     private final @Getter
-    Map<Path, SeekableByteChannel> map = new HashMap<>();
-    private final @Getter
-    Map<Path, Long> timeMap = new HashMap<>();
+    Map<Path, Metadata> map = new HashMap<>();
 
     private final ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
 
@@ -36,10 +35,12 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
             Path path = startdata.getPath();
             SeekableByteChannel writeChannel = null;
             String filename = path.getFileName().toString();
+            Metadata metadata = new Metadata();
             log.info("Start frame of the file \"{}\" is received", filename);
             try {
                 writeChannel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
-                map.put(path, writeChannel);
+                metadata.channel = writeChannel;
+                map.put(path, metadata);
                 buffer.clear();
                 buffer.put(startdata.getData());
                 buffer.flip();
@@ -52,7 +53,7 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
                     log.info("[ {} ] {}", filename, StatusType.OK.getText());
                     return;
                 }
-                timeMap.put(path, System.currentTimeMillis());
+                metadata.timestamp = System.currentTimeMillis();
             } catch (FileAlreadyExistsException e) {
                 ctx.writeAndFlush(new StatusData(path, StatusType.HANDLED_ERROR2));
                 log.error("[ {} ] {}", filename, StatusType.HANDLED_ERROR2.getText());

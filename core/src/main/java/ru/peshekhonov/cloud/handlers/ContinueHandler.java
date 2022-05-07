@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import ru.peshekhonov.cloud.Configuration;
+import ru.peshekhonov.cloud.Metadata;
 import ru.peshekhonov.cloud.StatusType;
 import ru.peshekhonov.cloud.messages.Message;
 import ru.peshekhonov.cloud.messages.StatusData;
@@ -25,21 +26,22 @@ public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
         if (msg instanceof SubsequentData data) {
             Path path = data.getPath();
-            Map<Path, SeekableByteChannel> map = ctx.pipeline().get(StartHandler.class).getMap();
-            Map<Path, Long> timeMap = ctx.pipeline().get(StartHandler.class).getTimeMap();
-            SeekableByteChannel writeChannel = map.get(path);
+            Map<Path, Metadata> map = ctx.pipeline().get(StartHandler.class).getMap();
             String filename = path.getFileName().toString();
             log.debug("Continue frame of the file \"{}\" is received", filename);
+            if (map.get(path) == null) {
+                return;
+            }
+            SeekableByteChannel writeChannel = map.get(path).channel;
             if (writeChannel == null || !writeChannel.isOpen()) {
                 return;
             }
-            if (System.currentTimeMillis() - timeMap.get(path) > Configuration.FRAME_TIMEOUT_MS) {
+            if (System.currentTimeMillis() - map.get(path).timestamp > Configuration.FRAME_TIMEOUT_MS) {
                 ctx.writeAndFlush(new StatusData(path, StatusType.HANDLED_ERROR3));
                 log.error("[ {} ] {}", filename, StatusType.HANDLED_ERROR3.getText());
                 try {
                     writeChannel.close();
                     map.remove(path);
-                    timeMap.remove(path);
                     Files.deleteIfExists(path);
                 } catch (IOException ex) {
                     log.error("File \"" + filename + "\"", ex);
@@ -55,19 +57,17 @@ public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
                 if (data.isEndOfFile()) {
                     writeChannel.close();
                     map.remove(path);
-                    timeMap.remove(path);
                     ctx.writeAndFlush(new StatusData(path, StatusType.OK));
                     log.info("[ {} ] {}", filename, StatusType.OK.getText());
                     return;
                 }
-                timeMap.put(path, System.currentTimeMillis());
+                map.get(path).timestamp = System.currentTimeMillis();
             } catch (IOException e) {
                 ctx.writeAndFlush(new StatusData(path, StatusType.HANDLED_ERROR1));
                 log.error("[ {} ] {}", filename, StatusType.HANDLED_ERROR1.getText());
                 try {
                     writeChannel.close();
                     map.remove(path);
-                    timeMap.remove(path);
                     Files.deleteIfExists(path);
                 } catch (IOException ex) {
                     log.error("File \"" + filename + "\"", ex);
