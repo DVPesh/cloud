@@ -5,6 +5,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import ru.peshekhonov.cloud.Configuration;
+import ru.peshekhonov.cloud.Metadata;
 import ru.peshekhonov.cloud.StatusType;
 import ru.peshekhonov.cloud.messages.Message;
 import ru.peshekhonov.cloud.messages.StartData;
@@ -13,7 +14,10 @@ import ru.peshekhonov.cloud.messages.StatusData;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.*;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,9 +25,9 @@ import java.util.Map;
 public class StartHandler extends SimpleChannelInboundHandler<Message> {
 
     private final @Getter
-    Map<Path, SeekableByteChannel> map = new HashMap<>();
+    Map<Path, Metadata> map = new HashMap<>();
 
-    ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
+    private final ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
@@ -31,10 +35,13 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
             Path path = startdata.getPath();
             SeekableByteChannel writeChannel = null;
             String filename = path.getFileName().toString();
+            Metadata metadata = new Metadata();
             log.info("Start frame of the file \"{}\" is received", filename);
             try {
                 writeChannel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
-                map.put(path, writeChannel);
+                metadata.channel = writeChannel;
+                map.put(path, metadata);
+                buffer.clear();
                 buffer.put(startdata.getData());
                 buffer.flip();
                 writeChannel.write(buffer);
@@ -44,7 +51,9 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
                     map.remove(path);
                     ctx.writeAndFlush(new StatusData(path, StatusType.OK));
                     log.info("[ {} ] {}", filename, StatusType.OK.getText());
+                    return;
                 }
+                metadata.timestamp = System.currentTimeMillis();
             } catch (FileAlreadyExistsException e) {
                 ctx.writeAndFlush(new StatusData(path, StatusType.HANDLED_ERROR2));
                 log.error("[ {} ] {}", filename, StatusType.HANDLED_ERROR2.getText());
@@ -54,9 +63,9 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
                 try {
                     if (writeChannel != null) {
                         writeChannel.close();
+                        map.remove(path);
+                        Files.deleteIfExists(path);
                     }
-                    map.remove(path);
-                    Files.deleteIfExists(path);
                 } catch (IOException ex) {
                     log.error("File \"" + filename + "\"", ex);
                 }

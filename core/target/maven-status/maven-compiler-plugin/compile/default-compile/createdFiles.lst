@@ -9,6 +9,7 @@ ru\peshekhonov\cloud\messages\StartData.class
 ru\peshekhonov\cloud\messages\FileListData.class
 ru\peshekhonov\cloud\StatusType.class
 ru\peshekhonov\cloud\messages\FileRequest.class
+ru\peshekhonov\cloud\Metadata.class
 ru\peshekhonov\cloud\messages\Message.class
 ru\peshekhonov\cloud\messages\StatusData.class
 ru\peshekhonov\cloud\handlers\StartHandler.class
