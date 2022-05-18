@@ -55,5 +55,6 @@ public class StatusHandler extends SimpleChannelInboundHandler<Message> {
         if (thread != null) {
             thread.interrupt();
         }
+        taskMap.remove(path);
     }
 }
