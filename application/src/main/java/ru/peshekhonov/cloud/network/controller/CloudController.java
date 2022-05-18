@@ -101,44 +101,45 @@ public class CloudController implements Initializable {
         if (Files.notExists(clientPath)) {
             return;
         }
-        Thread thread = new Thread(() -> {
-            try (SeekableByteChannel channel = Files.newByteChannel(clientPath, StandardOpenOption.READ)) {
-                ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
-                byte[] array;
-                final long fileSize = channel.size();
-                long size = channel.read(buffer);
-                buffer.flip();
-                array = new byte[(int) size];
-                buffer.get(array);
-                socketChannel.writeAndFlush(new StartData(serverPath, size == -1 || fileSize == size, array)).sync();
-                buffer.clear();
-                int length;
-                while ((length = channel.read(buffer)) != -1) {
-                    if (Thread.currentThread().isInterrupted()) {
-                        break;
-                    }
-                    size += length;
+        if (!socketChannel.pipeline().get(StatusHandler.class).getTaskMap().containsKey(serverPath)) {
+            Thread thread = new Thread(() -> {
+                try (SeekableByteChannel channel = Files.newByteChannel(clientPath, StandardOpenOption.READ)) {
+                    ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
+                    byte[] array;
+                    final long fileSize = channel.size();
+                    long size = channel.read(buffer);
                     buffer.flip();
-                    if (length == Configuration.BUFFER_SIZE) {
-                        buffer.get(array);
-                        socketChannel.writeAndFlush(new SubsequentData(serverPath, fileSize == size, array)).sync();
-                        buffer.clear();
-                    } else {
-                        array = new byte[length];
-                        buffer.get(array);
-                        socketChannel.writeAndFlush(new SubsequentData(serverPath, true, array)).sync();
-                        buffer.clear();
+                    array = new byte[(int) size];
+                    buffer.get(array);
+                    socketChannel.writeAndFlush(new StartData(serverPath, size == -1 || fileSize == size, array)).sync();
+                    buffer.clear();
+                    int length;
+                    while ((length = channel.read(buffer)) != -1) {
+                        if (Thread.currentThread().isInterrupted()) {
+                            break;
+                        }
+                        size += length;
+                        buffer.flip();
+                        if (length == Configuration.BUFFER_SIZE) {
+                            buffer.get(array);
+                            socketChannel.writeAndFlush(new SubsequentData(serverPath, fileSize == size, array)).sync();
+                            buffer.clear();
+                        } else {
+                            array = new byte[length];
+                            buffer.get(array);
+                            socketChannel.writeAndFlush(new SubsequentData(serverPath, true, array)).sync();
+                            buffer.clear();
+                        }
                     }
+                } catch (IOException | InterruptedException e) {
+                    log.error("[ {} ] client failed to read the file", selectedItem);
+                } finally {
+                    socketChannel.pipeline().get(StatusHandler.class).getTaskMap().remove(serverPath);
                 }
-            } catch (IOException e) {
-                log.error("[ {} ] client failed to read the file", selectedItem);
-            } catch (InterruptedException e) {
-                log.error(e.getMessage());
-            }
-            socketChannel.pipeline().get(StatusHandler.class).getTaskMap().remove(serverPath);
-        });
-        socketChannel.pipeline().get(StatusHandler.class).getTaskMap().put(serverPath, thread);
-        thread.start();
+            });
+            socketChannel.pipeline().get(StatusHandler.class).getTaskMap().put(serverPath, thread);
+            thread.start();
+        }
     }
 
     @FXML
