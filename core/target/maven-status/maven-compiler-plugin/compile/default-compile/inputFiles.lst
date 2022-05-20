@@ -1,3 +1,5 @@
+C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\FileInfoListData.java
+C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\FileInfo.java
 C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\handlers\UndefinedHandler.java
 C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\Message.java
 C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\Metadata.java
@@ -7,8 +9,7 @@ C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\handlers\StartHandler.java
 C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\handlers\ContinueHandler.java
 C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\FileRequest.java
 C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\Configuration.java
-C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\FileListData.java
+C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\FileInfoListRequest.java
 C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\StartData.java
-C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\FileListRequest.java
 C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\StatusData.java
 C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\handlers\StatusHandler.java
