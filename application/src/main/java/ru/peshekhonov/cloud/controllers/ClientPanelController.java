@@ -77,28 +77,20 @@ public class ClientPanelController implements Initializable {
 
         fileTable.setOnMouseClicked(event -> {
             FileInfo item = fileTable.getSelectionModel().getSelectedItem();
-            try {
-                if (event.getClickCount() == 2 && item != null) {
-                    showSelectedDirectoryList(item);
-                }
-            } catch (InvalidPathException e) {
-                clearList();
+            if (event.getClickCount() == 2 && item != null) {
+                showSelectedDirectoryList(item);
             }
         });
 
         fileTable.setOnKeyPressed(event -> {
             FileInfo item = fileTable.getSelectionModel().getSelectedItem();
-            try {
-                if (item == null) {
-                    return;
-                }
-                if (event.getCode() == KeyCode.ENTER) {
-                    showSelectedDirectoryList(item);
-                } else if (event.getCode() == KeyCode.F3) {
-                    fileTable.edit(fileTable.getSelectionModel().getSelectedIndex(), filenameColumn);
-                }
-            } catch (InvalidPathException e) {
-                clearList();
+            if (item == null) {
+                return;
+            }
+            if (event.getCode() == KeyCode.ENTER) {
+                showSelectedDirectoryList(item);
+            } else if (event.getCode() == KeyCode.F3) {
+                fileTable.edit(fileTable.getSelectionModel().getSelectedIndex(), filenameColumn);
             }
         });
 
@@ -123,10 +115,14 @@ public class ClientPanelController implements Initializable {
     }
 
     private void showSelectedDirectoryList(FileInfo item) {
-        Path path = Paths.get(textField.getText()).resolve(item.getFilename());
-        if (Files.isDirectory(path)) {
-            updateList(path);
-        } else if (Files.notExists(path)) {
+        try {
+            Path path = Paths.get(textField.getText()).resolve(item.getFilename());
+            if (Files.isDirectory(path)) {
+                updateList(path);
+            } else if (Files.notExists(path)) {
+                clearList();
+            }
+        } catch (InvalidPathException e) {
             clearList();
         }
     }
@@ -138,7 +134,9 @@ public class ClientPanelController implements Initializable {
     }
 
     private void updateList() {
-        updateList(currentPath);
+        if (currentPath != null) {
+            updateList(currentPath);
+        }
     }
 
     private void updateList(Path path) {
