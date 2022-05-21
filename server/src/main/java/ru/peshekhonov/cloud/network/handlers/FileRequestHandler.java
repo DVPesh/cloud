@@ -7,6 +7,7 @@ import ru.peshekhonov.cloud.Configuration;
 import ru.peshekhonov.cloud.StatusType;
 import ru.peshekhonov.cloud.handlers.StatusHandler;
 import ru.peshekhonov.cloud.messages.*;
+import ru.peshekhonov.cloud.network.Server;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -24,14 +25,15 @@ public class FileRequestHandler extends SimpleChannelInboundHandler<Message> {
             final String filename = request.getSource().getFileName().toString();
             final Path destination = request.getDestination();
             final Path source = request.getSource();
-            if (Files.notExists(source)) {
+            final Path serverSource = Server.SERVER_DIR.resolve(source);
+            if (Files.notExists(serverSource)) {
                 ctx.writeAndFlush(new StatusData(source, StatusType.ERROR1));
                 log.error("[ {} ] {}", filename, StatusType.ERROR1.getText());
                 return;
             }
             if (!ctx.pipeline().get(StatusHandler.class).getTaskMap().containsKey(destination)) {
                 Thread thread = new Thread(() -> {
-                    try (SeekableByteChannel channel = Files.newByteChannel(source, StandardOpenOption.READ)) {
+                    try (SeekableByteChannel channel = Files.newByteChannel(serverSource, StandardOpenOption.READ)) {
                         ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
                         byte[] array;
                         final long fileSize = channel.size();

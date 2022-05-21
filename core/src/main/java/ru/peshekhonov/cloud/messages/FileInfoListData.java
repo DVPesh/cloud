@@ -16,8 +16,9 @@ public class FileInfoListData extends Message {
     List<FileInfo> fileInfoList;
     private final String directory;
 
-    public FileInfoListData(Path path) throws IOException {
-        try(Stream<Path> pathStream = Files.list(path)) {
+    public FileInfoListData(Path base, Path path) throws IOException {
+        Path directory = base.resolve(path);
+        try (Stream<Path> pathStream = Files.list(directory)) {
             List<Path> pathList = pathStream.toList();
             fileInfoList = new ArrayList<>(pathList.size()); //нельзя использовать Stream API из-за IOException!
             for (Path element : pathList) {

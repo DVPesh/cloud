@@ -105,6 +105,9 @@ public class CloudController implements Initializable {
             return;
         }
         Path destination = clientPanelController.getCurrentPath().resolve(selectedItem).normalize().toAbsolutePath();
+        if (Files.isRegularFile(destination)) {
+            return;
+        }
         Path source = serverPanelController.getCurrentPath().resolve(selectedItem);
         socketChannel.writeAndFlush(new FileRequest(source, destination));
     }
