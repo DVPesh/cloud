@@ -26,19 +26,19 @@ import java.util.stream.Stream;
 public class ClientPanelController implements Initializable {
 
     @FXML
-    public TextField textField;
+    private TextField textField;
     @FXML
-    public TableView<FileInfo> fileTable;
+    private TableView<FileInfo> fileTable;
     @FXML
-    public TableColumn<FileInfo, ImageView> iconColumn;
+    private TableColumn<FileInfo, ImageView> iconColumn;
     @FXML
-    public TableColumn<FileInfo, String> filenameColumn;
+    private TableColumn<FileInfo, String> filenameColumn;
     @FXML
-    public TableColumn<FileInfo, Long> fileSizeColumn;
+    private TableColumn<FileInfo, Long> fileSizeColumn;
     @FXML
-    public TableColumn<FileInfo, String> lastModifiedColumn;
+    private TableColumn<FileInfo, String> lastModifiedColumn;
     @FXML
-    public TableColumn<FileInfo, Long> loadFactorColumn;
+    private TableColumn<FileInfo, Long> loadFactorColumn;
 
     private Path currentPath;
 
@@ -159,7 +159,7 @@ public class ClientPanelController implements Initializable {
     }
 
     @FXML
-    public void rootButtonOnActionHandler(ActionEvent actionEvent) {
+    private void rootButtonOnActionHandler(ActionEvent actionEvent) {
         filenameColumn.setEditable(false);
         updateDiscs();
     }
@@ -178,7 +178,7 @@ public class ClientPanelController implements Initializable {
     }
 
     @FXML
-    public void textFieldOnActionHandler(ActionEvent actionEvent) {
+    private void textFieldOnActionHandler(ActionEvent actionEvent) {
         try {
             currentPath = Path.of(textField.getText());
             if (Files.isDirectory(currentPath)) {
@@ -192,7 +192,7 @@ public class ClientPanelController implements Initializable {
     }
 
     @FXML
-    public void upButtonOnActionHandler(ActionEvent actionEvent) {
+    private void upButtonOnActionHandler(ActionEvent actionEvent) {
         try {
             Path path = Paths.get(textField.getText());
             Path parentPath = path.getParent();
@@ -211,7 +211,7 @@ public class ClientPanelController implements Initializable {
     }
 
     @FXML
-    public void filenameColumnOnEditCommitHandler(TableColumn.CellEditEvent<FileInfo, String> fileInfoStringCellEditEvent) {
+    private void filenameColumnOnEditCommitHandler(TableColumn.CellEditEvent<FileInfo, String> fileInfoStringCellEditEvent) {
 
     }
 }

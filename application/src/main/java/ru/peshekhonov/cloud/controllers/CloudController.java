@@ -31,73 +31,47 @@ import java.util.*;
 public class CloudController implements Initializable {
 
     @FXML
-    public HBox clientPanel, serverPanel;
+    @Getter
+    private ClientPanelController clientPanelController;
+    @FXML
+    @Getter
+    private ServerPanelController serverPanelController;
+    @Getter
+    private NettyNet net;
+    @Setter
+    private Channel socketChannel;
+    @Setter
+    private Path serverDir;
 
-    private @Getter
-    NettyNet net;
-    private @Setter
-    Channel socketChannel;
-    private @Setter
-    Path serverDir;
     private Path clientDir = Path.of("files");
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        ClientPanelController clientPanelController = (ClientPanelController) clientPanel.getProperties().get("ctrl");
-        ServerPanelController serverPanelController = (ServerPanelController) serverPanel.getProperties().get("ctrl");
-
-//        net = new NettyNet();
-//
-//        new Timer(true).schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                Platform.runLater(() -> {
-//                    updateClientListView();
-//                    socketChannel.writeAndFlush(new FileInfoListRequest());
-//                });
-//            }
-//        }, 100, 3000);
-
+        net = new NettyNet();
     }
 
-//    public void updateServerListView(List<String> serverFileList) {
-//        int selectedIndex = serverListView.getSelectionModel().getSelectedIndex();
-//        serverFiles.setAll(serverFileList);
-//        serverListView.getSelectionModel().select(selectedIndex);
-//    }
-//
-//    public void updateClientListView() {
-//        try {
-//            int selectedIndex = clientListView.getSelectionModel().getSelectedIndex();
-//            clientFiles.setAll(Files.list(clientDir).map(Path::getFileName).map(Path::toString).toList());
-//            clientListView.getSelectionModel().select(selectedIndex);
-//        } catch (IOException e) {
-//            log.error("Failed to read list of files");
-//        }
-//    }
-
     @FXML
-    public void exitMenuOnActionHandler(ActionEvent actionEvent) {
+    private void exitMenuOnActionHandler(ActionEvent actionEvent) {
         Platform.exit();
     }
 
     @FXML
-    public void copyToServerButtonOnActionHandler(ActionEvent actionEvent) {
+    private void copyToServerButtonOnActionHandler(ActionEvent actionEvent) {
 
     }
 
     @FXML
-    public void copyToClientButtonOnActionHandler(ActionEvent actionEvent) {
+    private void copyToClientButtonOnActionHandler(ActionEvent actionEvent) {
 
     }
 
     @FXML
-    public void moveToServerButtonOnActionHandler(ActionEvent actionEvent) {
+    private void moveToServerButtonOnActionHandler(ActionEvent actionEvent) {
 
     }
 
     @FXML
-    public void moveToClientButtonOnActionHandler(ActionEvent actionEvent) {
+    private void moveToClientButtonOnActionHandler(ActionEvent actionEvent) {
 
     }
 

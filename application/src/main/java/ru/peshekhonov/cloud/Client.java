@@ -11,9 +11,11 @@ import java.io.IOException;
 
 public class Client extends Application {
 
-    private static @Getter
-    Client instance;
+    @Getter
+    private static Client instance;
+
     private FXMLLoader fxmlLoader;
+
     public final static double ALERT_WIDTH = 366;
     public final static double ALERT_HEIGHT = 185;
 
@@ -35,12 +37,12 @@ public class Client extends Application {
         return fxmlLoader.getController();
     }
 
-//    @Override
-//    public void stop() throws Exception {
-//        CloudController cloudController = fxmlLoader.getController();
-//        if (cloudController.getNet() != null && cloudController.getNet().getHard() != null) {
-//            cloudController.getNet().getHard().shutdownGracefully();
-//        }
-//        super.stop();
-//    }
+    @Override
+    public void stop() throws Exception {
+        CloudController cloudController = fxmlLoader.getController();
+        if (cloudController.getNet() != null && cloudController.getNet().getHard() != null) {
+            cloudController.getNet().getHard().shutdownGracefully();
+        }
+        super.stop();
+    }
 }

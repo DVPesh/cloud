@@ -27,24 +27,23 @@ import java.util.TimerTask;
 public class ServerPanelController implements Initializable {
 
     @FXML
-    public TextField textField;
+    private TextField textField;
     @FXML
-    public TableView<FileInfo> fileTable;
+    private TableView<FileInfo> fileTable;
     @FXML
-    public TableColumn<FileInfo, ImageView> iconColumn;
+    private TableColumn<FileInfo, ImageView> iconColumn;
     @FXML
-    public TableColumn<FileInfo, String> filenameColumn;
+    private TableColumn<FileInfo, String> filenameColumn;
     @FXML
-    public TableColumn<FileInfo, Long> fileSizeColumn;
+    private TableColumn<FileInfo, Long> fileSizeColumn;
     @FXML
-    public TableColumn<FileInfo, String> lastModifiedColumn;
+    private TableColumn<FileInfo, String> lastModifiedColumn;
     @FXML
-    public TableColumn<FileInfo, Long> loadFactorColumn;
+    private TableColumn<FileInfo, Long> loadFactorColumn;
 
     private Path currentPath, previousPath;
-
-    private @Setter
-    Channel socketChannel;
+    @Setter
+    private Channel socketChannel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -114,7 +113,7 @@ public class ServerPanelController implements Initializable {
         socketChannel.writeAndFlush(new FileInfoListRequest(directory));
     }
 
-    private void clearList() {
+    public void clearList() {
         previousPath = null;
         currentPath = null;
         textField.clear();
@@ -155,7 +154,7 @@ public class ServerPanelController implements Initializable {
     }
 
     @FXML
-    public void rootButtonOnActionHandler(ActionEvent actionEvent) {
+    private void rootButtonOnActionHandler(ActionEvent actionEvent) {
         filenameColumn.setEditable(false);
         previousPath = currentPath;
         currentPath = Path.of("");
@@ -163,7 +162,7 @@ public class ServerPanelController implements Initializable {
     }
 
     @FXML
-    public void workingDirectoryButtonOnActionHandler(ActionEvent actionEvent) {
+    private void workingDirectoryButtonOnActionHandler(ActionEvent actionEvent) {
         filenameColumn.setEditable(true);
         previousPath = currentPath;
         currentPath = Path.of("user");
@@ -171,17 +170,17 @@ public class ServerPanelController implements Initializable {
     }
 
     @FXML
-    public void textFieldOnActionHandler(ActionEvent actionEvent) {
+    private void textFieldOnActionHandler(ActionEvent actionEvent) {
 
     }
 
     @FXML
-    public void upButtonOnActionHandler(ActionEvent actionEvent) {
+    private void upButtonOnActionHandler(ActionEvent actionEvent) {
 
     }
 
     @FXML
-    public void filenameColumnOnEditCommitHandler(TableColumn.CellEditEvent<FileInfo, String> fileInfoStringCellEditEvent) {
+    private void filenameColumnOnEditCommitHandler(TableColumn.CellEditEvent<FileInfo, String> fileInfoStringCellEditEvent) {
 
     }
 }

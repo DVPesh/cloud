@@ -60,11 +60,6 @@
                     </VBox.margin>
                 </TableView>
             </children>
-            <properties>
-                <ctrl>
-                    <fx:reference source="controller"/>
-                </ctrl>
-            </properties>
         </VBox>
     </children>
 </HBox>
