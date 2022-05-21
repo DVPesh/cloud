@@ -143,7 +143,9 @@ public class ClientPanelController implements Initializable {
         filenameColumn.setEditable(true);
         try (Stream<Path> pathStream = Files.list(path)) {
             currentPath = path.normalize().toAbsolutePath();
-            textField.setText(currentPath.toString());
+            if (!textField.isFocused()) {
+                textField.setText(currentPath.toString());
+            }
             fileTable.getItems().clear();
             for (Path element : pathStream.toList()) {      //нельзя использовать Stream API из-за IOException!
                 fileTable.getItems().add(new FileInfo(element));

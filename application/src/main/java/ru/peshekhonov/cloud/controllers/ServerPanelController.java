@@ -133,7 +133,9 @@ public class ServerPanelController implements Initializable {
     private void updateList(List<FileInfo> fileInfoList, Path directory) {
         previousPath = currentPath;
         currentPath = directory;
-        textField.setText(directory.toString());
+        if (!textField.isFocused()) {
+            textField.setText(directory.toString());
+        }
         fileTable.getItems().setAll(fileInfoList);
         fileTable.sort();
     }
