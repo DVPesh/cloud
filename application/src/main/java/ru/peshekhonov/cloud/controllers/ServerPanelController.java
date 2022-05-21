@@ -12,6 +12,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import lombok.Getter;
 import lombok.Setter;
 import ru.peshekhonov.cloud.FileInfo;
 import ru.peshekhonov.cloud.messages.FileInfoListRequest;
@@ -29,6 +30,7 @@ public class ServerPanelController implements Initializable {
     @FXML
     private TextField textField;
     @FXML
+    @Getter
     private TableView<FileInfo> fileTable;
     @FXML
     private TableColumn<FileInfo, ImageView> iconColumn;
@@ -40,8 +42,9 @@ public class ServerPanelController implements Initializable {
     private TableColumn<FileInfo, String> lastModifiedColumn;
     @FXML
     private TableColumn<FileInfo, Long> loadFactorColumn;
-
-    private Path currentPath, previousPath;
+    @Getter
+    private Path currentPath;
+    private Path previousPath;
     @Setter
     private Channel socketChannel;
 
@@ -173,12 +176,34 @@ public class ServerPanelController implements Initializable {
 
     @FXML
     private void textFieldOnActionHandler(ActionEvent actionEvent) {
-
+        try {
+            String str = textField.getText();
+            Path path = Path.of(str);
+            previousPath = currentPath;
+            currentPath = path;
+            filenameColumn.setEditable(!str.equals(""));
+            requestFileInfoList(currentPath);
+        } catch (InvalidPathException e) {
+            clearList();
+        }
     }
 
     @FXML
     private void upButtonOnActionHandler(ActionEvent actionEvent) {
-
+        try {
+            Path parentPath = Paths.get(textField.getText()).getParent();
+            previousPath = currentPath;
+            if (parentPath == null) {
+                currentPath = Path.of("");
+                filenameColumn.setEditable(false);
+            } else {
+                currentPath = parentPath;
+                filenameColumn.setEditable(true);
+            }
+            requestFileInfoList(currentPath);
+        } catch (InvalidPathException e) {
+            clearList();
+        }
     }
 
     @FXML

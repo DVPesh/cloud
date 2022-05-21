@@ -34,11 +34,16 @@ public class NettyNet {
                     if (cause != null) {
                         log.error("", cause);
                     }
-                    hard.shutdownGracefully();
+                    if (!hard.isShuttingDown()) {
+                        hard.shutdownGracefully();
+                    }
                 }
             });
         } catch (Exception e) {
             log.error("", e);
+            if (!hard.isShuttingDown()) {
+                hard.shutdownGracefully();
+            }
         }
     }
 }

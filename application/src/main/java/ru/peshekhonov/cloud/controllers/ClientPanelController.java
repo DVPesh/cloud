@@ -13,6 +13,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+import lombok.Getter;
 import ru.peshekhonov.cloud.Client;
 import ru.peshekhonov.cloud.FileInfo;
 
@@ -28,6 +29,7 @@ public class ClientPanelController implements Initializable {
     @FXML
     private TextField textField;
     @FXML
+    @Getter
     private TableView<FileInfo> fileTable;
     @FXML
     private TableColumn<FileInfo, ImageView> iconColumn;
@@ -39,7 +41,7 @@ public class ClientPanelController implements Initializable {
     private TableColumn<FileInfo, String> lastModifiedColumn;
     @FXML
     private TableColumn<FileInfo, Long> loadFactorColumn;
-
+    @Getter
     private Path currentPath;
 
     @Override

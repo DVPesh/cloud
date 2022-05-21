@@ -43,6 +43,9 @@ public class StatusHandler extends SimpleChannelInboundHandler<Message> {
                     break;
                 case ERROR2:
                     log.error("[ {} ] {}", filename, StatusType.ERROR2.getText());
+                    break;
+                default:
+                    ctx.fireChannelRead(msg);
             }
         } else {
             ctx.fireChannelRead(msg);

@@ -40,7 +40,7 @@ public class Client extends Application {
     @Override
     public void stop() throws Exception {
         CloudController cloudController = fxmlLoader.getController();
-        if (cloudController.getNet() != null && cloudController.getNet().getHard() != null) {
+        if (cloudController.getNet() != null && cloudController.getNet().getHard() != null && !cloudController.getNet().getHard().isShuttingDown()) {
             cloudController.getNet().getHard().shutdownGracefully();
         }
         super.stop();

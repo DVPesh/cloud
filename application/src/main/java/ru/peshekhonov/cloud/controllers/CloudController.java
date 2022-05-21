@@ -2,14 +2,9 @@ package ru.peshekhonov.cloud.controllers;
 
 import io.netty.channel.Channel;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.layout.HBox;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -40,10 +35,6 @@ public class CloudController implements Initializable {
     private NettyNet net;
     @Setter
     private Channel socketChannel;
-    @Setter
-    private Path serverDir;
-
-    private Path clientDir = Path.of("files");
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -57,12 +48,65 @@ public class CloudController implements Initializable {
 
     @FXML
     private void copyToServerButtonOnActionHandler(ActionEvent actionEvent) {
-
+        final String selectedItem = clientPanelController.getFileTable().getSelectionModel().getSelectedItem().getFilename();
+        if (selectedItem == null) {
+            return;
+        }
+        final Path clientPath = clientPanelController.getCurrentPath().resolve(selectedItem);
+        final Path serverPath = serverPanelController.getCurrentPath().resolve(selectedItem);
+        if (Files.notExists(clientPath)) {
+            return;
+        }
+        if (!socketChannel.pipeline().get(StatusHandler.class).getTaskMap().containsKey(serverPath)) {
+            Thread thread = new Thread(() -> {
+                try (SeekableByteChannel channel = Files.newByteChannel(clientPath, StandardOpenOption.READ)) {
+                    ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
+                    byte[] array;
+                    final long fileSize = channel.size();
+                    long size = channel.read(buffer);
+                    buffer.flip();
+                    array = new byte[(int) size];
+                    buffer.get(array);
+                    socketChannel.writeAndFlush(new StartData(serverPath, size == -1 || fileSize == size, array)).sync();
+                    buffer.clear();
+                    int length;
+                    while ((length = channel.read(buffer)) != -1) {
+                        if (Thread.currentThread().isInterrupted()) {
+                            break;
+                        }
+                        size += length;
+                        buffer.flip();
+                        if (length == Configuration.BUFFER_SIZE) {
+                            buffer.get(array);
+                            socketChannel.writeAndFlush(new SubsequentData(serverPath, fileSize == size, array)).sync();
+                            buffer.clear();
+                        } else {
+                            array = new byte[length];
+                            buffer.get(array);
+                            socketChannel.writeAndFlush(new SubsequentData(serverPath, true, array)).sync();
+                            buffer.clear();
+                        }
+                    }
+                } catch (IOException | InterruptedException e) {
+                    log.error("[ {} ] client failed to read the file", selectedItem);
+                } finally {
+                    socketChannel.pipeline().get(StatusHandler.class).getTaskMap().remove(serverPath);
+                }
+            });
+            socketChannel.pipeline().get(StatusHandler.class).getTaskMap().put(serverPath, thread);
+            thread.start();
+        }
     }
 
     @FXML
     private void copyToClientButtonOnActionHandler(ActionEvent actionEvent) {
-
+        String selectedItem = serverPanelController.getFileTable().getSelectionModel().getSelectedItem().getFilename();
+        if (selectedItem == null) {
+            return;
+        }
+        Path destination = clientPanelController.getCurrentPath().resolve(selectedItem).normalize().toAbsolutePath();
+        Path source = serverPanelController.getCurrentPath().resolve(selectedItem);
+        socketChannel.writeAndFlush(new FileRequest(source, destination));
     }
 
     @FXML
@@ -74,67 +118,4 @@ public class CloudController implements Initializable {
     private void moveToClientButtonOnActionHandler(ActionEvent actionEvent) {
 
     }
-
-//    @FXML
-//    public void buttonCopyToServerOnActionHandler(ActionEvent actionEvent) {
-//        final String selectedItem = clientListView.getSelectionModel().getSelectedItem();
-//        if (selectedItem == null) {
-//            return;
-//        }
-//        final Path clientPath = clientDir.resolve(selectedItem);
-//        final Path serverPath = serverDir.resolve(selectedItem);
-//        if (Files.notExists(clientPath)) {
-//            return;
-//        }
-//        if (!socketChannel.pipeline().get(StatusHandler.class).getTaskMap().containsKey(serverPath)) {
-//            Thread thread = new Thread(() -> {
-//                try (SeekableByteChannel channel = Files.newByteChannel(clientPath, StandardOpenOption.READ)) {
-//                    ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
-//                    byte[] array;
-//                    final long fileSize = channel.size();
-//                    long size = channel.read(buffer);
-//                    buffer.flip();
-//                    array = new byte[(int) size];
-//                    buffer.get(array);
-//                    socketChannel.writeAndFlush(new StartData(serverPath, size == -1 || fileSize == size, array)).sync();
-//                    buffer.clear();
-//                    int length;
-//                    while ((length = channel.read(buffer)) != -1) {
-//                        if (Thread.currentThread().isInterrupted()) {
-//                            break;
-//                        }
-//                        size += length;
-//                        buffer.flip();
-//                        if (length == Configuration.BUFFER_SIZE) {
-//                            buffer.get(array);
-//                            socketChannel.writeAndFlush(new SubsequentData(serverPath, fileSize == size, array)).sync();
-//                            buffer.clear();
-//                        } else {
-//                            array = new byte[length];
-//                            buffer.get(array);
-//                            socketChannel.writeAndFlush(new SubsequentData(serverPath, true, array)).sync();
-//                            buffer.clear();
-//                        }
-//                    }
-//                } catch (IOException | InterruptedException e) {
-//                    log.error("[ {} ] client failed to read the file", selectedItem);
-//                } finally {
-//                    socketChannel.pipeline().get(StatusHandler.class).getTaskMap().remove(serverPath);
-//                }
-//            });
-//            socketChannel.pipeline().get(StatusHandler.class).getTaskMap().put(serverPath, thread);
-//            thread.start();
-//        }
-//    }
-//
-//    @FXML
-//    public void buttonCopyToClientOnActionHandler(ActionEvent actionEvent) {
-//        String selectedItem = serverListView.getSelectionModel().getSelectedItem();
-//        if (selectedItem == null) {
-//            return;
-//        }
-//        Path destination = clientDir.resolve(selectedItem).normalize().toAbsolutePath();
-//        Path source = serverDir.resolve(selectedItem);
-//        socketChannel.writeAndFlush(new FileRequest(source, destination));
-//    }
 }
