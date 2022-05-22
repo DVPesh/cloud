@@ -3,6 +3,7 @@ package ru.peshekhonov.cloud.handlers;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.peshekhonov.cloud.Configuration;
 import ru.peshekhonov.cloud.Metadata;
@@ -28,17 +29,20 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
     Map<Path, Metadata> map = new HashMap<>();
 
     private final ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
+    @Setter
+    private Path base;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
         if (msg instanceof StartData startdata) {
             Path path = startdata.getPath();
+            Path fullPath = (base != null) ? base.resolve(path) : path;
             SeekableByteChannel writeChannel = null;
             String filename = path.getFileName().toString();
             Metadata metadata = new Metadata();
             log.info("Start frame of the file \"{}\" is received", filename);
             try {
-                writeChannel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+                writeChannel = Files.newByteChannel(fullPath, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
                 metadata.channel = writeChannel;
                 map.put(path, metadata);
                 buffer.clear();
@@ -64,7 +68,7 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
                     if (writeChannel != null) {
                         writeChannel.close();
                         map.remove(path);
-                        Files.deleteIfExists(path);
+                        Files.deleteIfExists(fullPath);
                     }
                 } catch (IOException ex) {
                     log.error("File \"" + filename + "\"", ex);

@@ -184,8 +184,9 @@ public class ClientPanelController implements Initializable {
     @FXML
     private void textFieldOnActionHandler(ActionEvent actionEvent) {
         try {
-            if (Files.isDirectory(Path.of(textField.getText()))) {
-                updateList();
+            Path path = Path.of(textField.getText());
+            if (Files.isDirectory(path)) {
+                updateList(path);
             } else {
                 clearList();
             }

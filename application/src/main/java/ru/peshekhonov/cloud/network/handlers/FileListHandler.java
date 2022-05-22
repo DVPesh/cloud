@@ -25,9 +25,9 @@ public class FileListHandler extends SimpleChannelInboundHandler<Message> {
                 serverPanelController.updateListAndPreserveSelection(list.getFileInfoList(), list.getDirectory());
             });
         } else if (msg instanceof StatusData status && status.getStatus() == StatusType.HANDLED_ERROR4) {
-            String filename = status.getPath().toString();
+            String fullFilename = status.getPath().toString();
             serverPanelController.clearList();
-            log.error("[ {} ] {}", filename, StatusType.HANDLED_ERROR4.getText());
+            log.error("[ {} ] {}", fullFilename, StatusType.HANDLED_ERROR4.getText());
         } else {
             ctx.fireChannelRead(msg);
         }

@@ -2,6 +2,7 @@ package ru.peshekhonov.cloud.handlers;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.peshekhonov.cloud.Configuration;
 import ru.peshekhonov.cloud.Metadata;
@@ -21,11 +22,14 @@ import java.util.Map;
 public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
 
     private final ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
+    @Setter
+    private Path base;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
         if (msg instanceof SubsequentData data) {
             Path path = data.getPath();
+            Path fullPath = (base != null) ? base.resolve(path) : path;
             Map<Path, Metadata> map = ctx.pipeline().get(StartHandler.class).getMap();
             String filename = path.getFileName().toString();
             log.debug("Continue frame of the file \"{}\" is received", filename);
@@ -42,7 +46,7 @@ public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
                 try {
                     writeChannel.close();
                     map.remove(path);
-                    Files.deleteIfExists(path);
+                    Files.deleteIfExists(fullPath);
                 } catch (IOException ex) {
                     log.error("File \"" + filename + "\"", ex);
                 }
@@ -68,7 +72,7 @@ public class ContinueHandler extends SimpleChannelInboundHandler<Message> {
                 try {
                     writeChannel.close();
                     map.remove(path);
-                    Files.deleteIfExists(path);
+                    Files.deleteIfExists(fullPath);
                 } catch (IOException ex) {
                     log.error("File \"" + filename + "\"", ex);
                 }

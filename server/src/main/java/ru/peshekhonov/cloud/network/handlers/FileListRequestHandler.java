@@ -4,6 +4,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import ru.peshekhonov.cloud.StatusType;
+import ru.peshekhonov.cloud.handlers.ContinueHandler;
+import ru.peshekhonov.cloud.handlers.StartHandler;
 import ru.peshekhonov.cloud.messages.FileInfoListData;
 import ru.peshekhonov.cloud.messages.FileInfoListRequest;
 import ru.peshekhonov.cloud.messages.Message;
@@ -38,5 +40,12 @@ public class FileListRequestHandler extends SimpleChannelInboundHandler<Message>
         } else {
             ctx.fireChannelRead(msg);
         }
+    }
+
+    @Override
+    public void channelRegistered(ChannelHandlerContext ctx) {
+        ctx.pipeline().get(StartHandler.class).setBase(Server.SERVER_DIR);
+        ctx.pipeline().get(ContinueHandler.class).setBase(Server.SERVER_DIR);
+        log.info("Channel was registered");
     }
 }

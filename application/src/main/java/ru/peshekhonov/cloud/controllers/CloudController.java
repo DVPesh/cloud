@@ -104,7 +104,7 @@ public class CloudController implements Initializable {
         if (selectedItem == null) {
             return;
         }
-        Path destination = clientPanelController.getCurrentPath().resolve(selectedItem).normalize().toAbsolutePath();
+        Path destination = clientPanelController.getCurrentPath().resolve(selectedItem);
         if (Files.isRegularFile(destination)) {
             return;
         }

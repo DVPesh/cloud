@@ -43,7 +43,7 @@ public class ServerPanelController implements Initializable {
     @FXML
     private TableColumn<FileInfo, Long> loadFactorColumn;
     @Getter
-    private Path currentPath;
+    private Path currentPath = Path.of("user");
     private Path previousPath;
     @Setter
     private Channel socketChannel;
