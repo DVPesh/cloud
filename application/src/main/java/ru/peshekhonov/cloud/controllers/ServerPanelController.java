@@ -147,8 +147,12 @@ public class ServerPanelController implements Initializable {
         if (item.getType() != FileInfo.FileType.DIRECTORY) {
             return;
         }
+        if (currentPath == null) {
+            clearList();
+            return;
+        }
         try {
-            Path path = Paths.get(textField.getText()).resolve(item.getFilename()).normalize();
+            Path path = currentPath.resolve(item.getFilename());
             previousPath = currentPath;
             currentPath = path;
             filenameColumn.setEditable(true);
@@ -178,7 +182,11 @@ public class ServerPanelController implements Initializable {
     private void textFieldOnActionHandler(ActionEvent actionEvent) {
         try {
             String str = textField.getText();
-            Path path = Path.of(str);
+            Path path = Path.of(str).normalize();
+            if (path.isAbsolute()) {
+                clearList();
+                return;
+            }
             previousPath = currentPath;
             currentPath = path;
             filenameColumn.setEditable(!str.equals(""));
@@ -190,20 +198,16 @@ public class ServerPanelController implements Initializable {
 
     @FXML
     private void upButtonOnActionHandler(ActionEvent actionEvent) {
-        try {
-            Path parentPath = Paths.get(textField.getText()).getParent();
-            previousPath = currentPath;
-            if (parentPath == null) {
-                currentPath = Path.of("");
-                filenameColumn.setEditable(false);
-            } else {
-                currentPath = parentPath;
-                filenameColumn.setEditable(true);
-            }
-            requestFileInfoList(currentPath);
-        } catch (InvalidPathException e) {
-            clearList();
+        Path parentPath = currentPath.getParent();
+        previousPath = currentPath;
+        if (parentPath == null) {
+            currentPath = Path.of("");
+            filenameColumn.setEditable(false);
+        } else {
+            currentPath = parentPath;
+            filenameColumn.setEditable(true);
         }
+        requestFileInfoList(currentPath);
     }
 
     @FXML
