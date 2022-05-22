@@ -25,6 +25,8 @@ import java.util.*;
 @Slf4j
 public class CloudController implements Initializable {
 
+    public final static long FILES_INFO_LIST_UPDATE_PERIOD_MS = 3000;
+
     @FXML
     @Getter
     private ClientPanelController clientPanelController;

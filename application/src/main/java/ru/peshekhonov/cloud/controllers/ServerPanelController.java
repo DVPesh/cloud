@@ -109,7 +109,7 @@ public class ServerPanelController implements Initializable {
                     }
                 });
             }
-        }, 100, 3000);
+        }, 100, CloudController.FILES_INFO_LIST_UPDATE_PERIOD_MS);
     }
 
     private void requestFileInfoList(Path directory) {
