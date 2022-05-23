@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ru.peshekhonov.cloud.controllers.ClientPanelController">
+    <children>
+        <VBox HBox.hgrow="ALWAYS">
+            <children>
+                <HBox>
+                    <children>
+                        <Label text="клиент" HBox.hgrow="NEVER">
+                            <HBox.margin>
+                                <Insets left="5.0" right="2.5" top="5.0"/>
+                            </HBox.margin>
+                            <padding>
+                                <Insets left="5.0" right="5.0" top="5.0"/>
+                            </padding>
+                        </Label>
+                        <Button mnemonicParsing="false" onAction="#rootButtonOnActionHandler" text="/">
+                            <HBox.margin>
+                                <Insets left="2.5" right="2.5" top="5.0"/>
+                            </HBox.margin>
+                        </Button>
+                        <TextField fx:id="textField" onAction="#textFieldOnActionHandler" HBox.hgrow="ALWAYS">
+                            <HBox.margin>
+                                <Insets left="2.5" right="2.5" top="5.0"/>
+                            </HBox.margin>
+                        </TextField>
+                        <Button mnemonicParsing="false" onAction="#upButtonOnActionHandler" text="↑">
+                            <HBox.margin>
+                                <Insets left="2.5" right="5.0" top="5.0"/>
+                            </HBox.margin>
+                        </Button>
+                    </children>
+                </HBox>
+                <TableView fx:id="fileTable" editable="true" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="iconColumn" editable="false" maxWidth="-1.0" minWidth="25.0"
+                                     prefWidth="-1.0" resizable="false" sortable="false"/>
+                        <TableColumn fx:id="filenameColumn" maxWidth="Infinity" minWidth="50.0"
+                                     onEditCommit="#filenameColumnOnEditCommitHandler" prefWidth="100.0"
+                                     text="название"/>
+                        <TableColumn fx:id="fileSizeColumn" editable="false" maxWidth="Infinity" minWidth="20.0"
+                                     prefWidth="100.0" text="размер"/>
+                        <TableColumn fx:id="lastModifiedColumn" editable="false" maxWidth="Infinity" minWidth="25.0"
+                                     prefWidth="118.0" text="дата изменения"/>
+                        <TableColumn fx:id="loadFactorColumn" editable="false" maxWidth="-1.0" minWidth="70.0"
+                                     prefWidth="-1.0" resizable="false" sortable="false" text="загружено"/>
+                    </columns>
+                    <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="2.5" top="5.0"/>
+                    </VBox.margin>
+                </TableView>
+            </children>
+        </VBox>
+    </children>
+</HBox>

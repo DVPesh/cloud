@@ -1,14 +1,10 @@
-package ru.peshekhonov.cloud.network.controller;
+package ru.peshekhonov.cloud.controllers;
 
 import io.netty.channel.Channel;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -29,75 +25,37 @@ import java.util.*;
 @Slf4j
 public class CloudController implements Initializable {
 
-    @FXML
-    public ListView<String> clientListView;
-    @FXML
-    public ListView<String> serverListView;
-    @FXML
-    public Button buttonCopyToServer;
-    @FXML
-    public Button buttonCopyToClient;
+    public final static long FILES_INFO_LIST_UPDATE_PERIOD_MS = 3000;
 
-    private ObservableList<String> clientFiles;
-    private ObservableList<String> serverFiles;
-    private @Getter
-    NettyNet net;
-    private @Setter
-    Channel socketChannel;
-    private @Setter
-    Path serverDir;
-    private Path clientDir = Path.of("files");
+    @FXML
+    @Getter
+    private ClientPanelController clientPanelController;
+    @FXML
+    @Getter
+    private ServerPanelController serverPanelController;
+    @Getter
+    private NettyNet net;
+    @Setter
+    private Channel socketChannel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        clientFiles = FXCollections.observableArrayList(new String[0]);
-        clientListView.setItems(clientFiles);
-        serverFiles = FXCollections.observableArrayList(new String[0]);
-        serverListView.setItems(serverFiles);
-
         net = new NettyNet();
-
-        new Timer(true).schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Platform.runLater(() -> {
-                    updateClientListView();
-                    socketChannel.writeAndFlush(new FileListRequest());
-                });
-            }
-        }, 100, 3000);
-
-    }
-
-    public void updateServerListView(List<String> serverFileList) {
-        int selectedIndex = serverListView.getSelectionModel().getSelectedIndex();
-        serverFiles.setAll(serverFileList);
-        serverListView.getSelectionModel().select(selectedIndex);
-    }
-
-    public void updateClientListView() {
-        try {
-            int selectedIndex = clientListView.getSelectionModel().getSelectedIndex();
-            clientFiles.setAll(Files.list(clientDir).map(Path::getFileName).map(Path::toString).toList());
-            clientListView.getSelectionModel().select(selectedIndex);
-        } catch (IOException e) {
-            log.error("Failed to read list of files");
-        }
     }
 
     @FXML
-    public void exitMenuOnActionHandler(ActionEvent actionEvent) {
+    private void exitMenuOnActionHandler(ActionEvent actionEvent) {
         Platform.exit();
     }
 
     @FXML
-    public void buttonCopyToServerOnActionHandler(ActionEvent actionEvent) {
-        final String selectedItem = clientListView.getSelectionModel().getSelectedItem();
+    private void copyToServerButtonOnActionHandler(ActionEvent actionEvent) {
+        final String selectedItem = clientPanelController.getFileTable().getSelectionModel().getSelectedItem().getFilename();
         if (selectedItem == null) {
             return;
         }
-        final Path clientPath = clientDir.resolve(selectedItem);
-        final Path serverPath = serverDir.resolve(selectedItem);
+        final Path clientPath = clientPanelController.getCurrentPath().resolve(selectedItem);
+        final Path serverPath = serverPanelController.getCurrentPath().resolve(selectedItem);
         if (Files.notExists(clientPath)) {
             return;
         }
@@ -143,13 +101,26 @@ public class CloudController implements Initializable {
     }
 
     @FXML
-    public void buttonCopyToClientOnActionHandler(ActionEvent actionEvent) {
-        String selectedItem = serverListView.getSelectionModel().getSelectedItem();
+    private void copyToClientButtonOnActionHandler(ActionEvent actionEvent) {
+        String selectedItem = serverPanelController.getFileTable().getSelectionModel().getSelectedItem().getFilename();
         if (selectedItem == null) {
             return;
         }
-        Path destination = clientDir.resolve(selectedItem).normalize().toAbsolutePath();
-        Path source = serverDir.resolve(selectedItem);
+        Path destination = clientPanelController.getCurrentPath().resolve(selectedItem);
+        if (Files.isRegularFile(destination)) {
+            return;
+        }
+        Path source = serverPanelController.getCurrentPath().resolve(selectedItem);
         socketChannel.writeAndFlush(new FileRequest(source, destination));
+    }
+
+    @FXML
+    private void moveToServerButtonOnActionHandler(ActionEvent actionEvent) {
+
+    }
+
+    @FXML
+    private void moveToClientButtonOnActionHandler(ActionEvent actionEvent) {
+
     }
 }

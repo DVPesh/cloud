@@ -5,15 +5,19 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import lombok.Getter;
-import ru.peshekhonov.cloud.network.controller.CloudController;
+import ru.peshekhonov.cloud.controllers.CloudController;
 
 import java.io.IOException;
 
 public class Client extends Application {
 
-    private static @Getter
-    Client instance;
+    @Getter
+    private static Client instance;
+
     private FXMLLoader fxmlLoader;
+
+    public final static double ALERT_WIDTH = 366;
+    public final static double ALERT_HEIGHT = 185;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -36,7 +40,7 @@ public class Client extends Application {
     @Override
     public void stop() throws Exception {
         CloudController cloudController = fxmlLoader.getController();
-        if (cloudController.getNet() != null && cloudController.getNet().getHard() != null) {
+        if (cloudController.getNet() != null && cloudController.getNet().getHard() != null && !cloudController.getNet().getHard().isShuttingDown()) {
             cloudController.getNet().getHard().shutdownGracefully();
         }
         super.stop();

@@ -1,6 +1,12 @@
-ru\peshekhonov\cloud\network\controller\CloudController.class
+ru\peshekhonov\cloud\controllers\ClientPanelController.class
+ru\peshekhonov\cloud\controllers\ServerPanelController$2.class
 ru\peshekhonov\cloud\network\SerializationPipeline.class
-ru\peshekhonov\cloud\network\NettyNet.class
-ru\peshekhonov\cloud\network\controller\CloudController$1.class
-ru\peshekhonov\cloud\network\handlers\FileListHandler.class
+ru\peshekhonov\cloud\controllers\CloudController.class
 ru\peshekhonov\cloud\Client.class
+ru\peshekhonov\cloud\controllers\ClientPanelController$2.class
+ru\peshekhonov\cloud\network\NettyNet.class
+ru\peshekhonov\cloud\controllers\ClientPanelController$1.class
+ru\peshekhonov\cloud\network\handlers\FileListHandler.class
+ru\peshekhonov\cloud\controllers\ServerPanelController.class
+ru\peshekhonov\cloud\controllers\ServerPanelController$1.class
+ru\peshekhonov\cloud\network\NettyNet$1.class
