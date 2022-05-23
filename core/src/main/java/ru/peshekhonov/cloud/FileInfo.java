@@ -1,7 +1,6 @@
 package ru.peshekhonov.cloud;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -12,17 +11,16 @@ import java.time.ZoneId;
 import java.util.Map;
 
 @Getter
-@Setter
 public class FileInfo implements Serializable {
 
     public enum FileType {
         FILE, DIRECTORY
     }
 
-    private String filename;
-    private FileType type;
-    private long size;
-    private LocalDateTime lastModified;
+    private final String filename;
+    private final FileType type;
+    private final long size;
+    private final LocalDateTime lastModified;
     private Double loadFactor = -1.0;
 
     public FileInfo(Path path) throws IOException {
@@ -42,6 +40,15 @@ public class FileInfo implements Serializable {
 
     public FileInfo(Path path, Map<Path, Metadata> map) throws IOException {
         this(path);
+        setLoadFactor(path, map);
+    }
+
+    public FileInfo(Path base, Path fullPath, Map<Path, Metadata> map) throws IOException {
+        this(fullPath);
+        setLoadFactor(base.relativize(fullPath), map);
+    }
+
+    private void setLoadFactor(Path path, Map<Path, Metadata> map) {
         if (map == null || type == FileType.DIRECTORY) {
             return;
         }

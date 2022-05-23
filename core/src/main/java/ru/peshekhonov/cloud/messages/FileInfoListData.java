@@ -19,12 +19,11 @@ public class FileInfoListData extends Message {
     private final String directory;
 
     public FileInfoListData(Path base, Path path, Map<Path, Metadata> map) throws IOException {
-        Path directory = base.resolve(path);
-        try (Stream<Path> pathStream = Files.list(directory)) {
+        try (Stream<Path> pathStream = Files.list(base.resolve(path))) {
             List<Path> pathList = pathStream.toList();
             fileInfoList = new ArrayList<>(pathList.size()); //нельзя использовать Stream API из-за IOException!
             for (Path element : pathList) {
-                fileInfoList.add(new FileInfo(element, map));
+                fileInfoList.add(new FileInfo(base, element, map));
             }
             this.directory = path.normalize().toString();
         }

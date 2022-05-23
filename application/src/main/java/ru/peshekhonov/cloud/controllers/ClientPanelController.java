@@ -126,13 +126,16 @@ public class ClientPanelController implements Initializable {
             @Override
             public void run() {
                 Platform.runLater(() -> {
-                    if (currentPath != null && fileTable.getEditingCell() == null) {
-                        int selectedIndex = fileTable.getSelectionModel().getSelectedIndex();
-                        updateList();
-                        fileTable.getSelectionModel().select(selectedIndex);
-                    } else if (currentPath == null && !filenameColumn.isEditable()) {
+                    if (currentPath == null) {
+                        return;
+                    }
+                    if (currentPath.equals(Path.of(""))) {
                         int selectedIndex = fileTable.getSelectionModel().getSelectedIndex();
                         updateDiscs();
+                        fileTable.getSelectionModel().select(selectedIndex);
+                    } else if (fileTable.getEditingCell() == null) {
+                        int selectedIndex = fileTable.getSelectionModel().getSelectedIndex();
+                        updateList();
                         fileTable.getSelectionModel().select(selectedIndex);
                     }
                 });
@@ -155,7 +158,9 @@ public class ClientPanelController implements Initializable {
 
     private void clearList() {
         currentPath = null;
-        textField.clear();
+        if (!textField.isFocused()) {
+            textField.clear();
+        }
         fileTable.getItems().clear();
     }
 
@@ -188,11 +193,15 @@ public class ClientPanelController implements Initializable {
 
     @FXML
     private void rootButtonOnActionHandler(ActionEvent actionEvent) {
+        currentPath = Path.of("");
         filenameColumn.setEditable(false);
         updateDiscs();
     }
 
     private void updateDiscs() {
+        if (currentPath == null) {
+            return;
+        }
         try {
             clearList();
             for (Path path : FileSystems.getDefault().getRootDirectories()) {
@@ -200,6 +209,7 @@ public class ClientPanelController implements Initializable {
                     fileTable.getItems().add(new FileInfo(path));
                 }
             }
+            currentPath = Path.of("");
         } catch (IOException e) {
             clearList();
         }
