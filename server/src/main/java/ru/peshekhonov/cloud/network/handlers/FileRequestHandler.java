@@ -41,7 +41,7 @@ public class FileRequestHandler extends SimpleChannelInboundHandler<Message> {
                         buffer.flip();
                         array = new byte[(int) size];
                         buffer.get(array);
-                        ctx.writeAndFlush(new StartData(destination, size == -1 || fileSize == size, array)).sync();
+                        ctx.writeAndFlush(new StartData(destination, size == -1 || fileSize == size, array, fileSize)).sync();
                         buffer.clear();
                         int length;
                         while ((length = channel.read(buffer)) != -1) {

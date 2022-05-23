@@ -1,5 +1,6 @@
 package ru.peshekhonov.cloud.controllers;
 
+import io.netty.channel.Channel;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -7,21 +8,27 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.control.TextField;
+import javafx.scene.control.cell.ProgressBarTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import lombok.Getter;
+import lombok.Setter;
 import ru.peshekhonov.cloud.Client;
 import ru.peshekhonov.cloud.FileInfo;
+import ru.peshekhonov.cloud.Metadata;
+import ru.peshekhonov.cloud.handlers.StartHandler;
 
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.*;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.stream.Stream;
 
 public class ClientPanelController implements Initializable {
@@ -40,9 +47,11 @@ public class ClientPanelController implements Initializable {
     @FXML
     private TableColumn<FileInfo, String> lastModifiedColumn;
     @FXML
-    private TableColumn<FileInfo, Long> loadFactorColumn;
+    private TableColumn<FileInfo, Double> loadFactorColumn;
     @Getter
     private Path currentPath;
+    @Setter
+    private Map<Path, Metadata> startHandlerMap;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -76,6 +85,21 @@ public class ClientPanelController implements Initializable {
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         lastModifiedColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getLastModified().format(dtf)));
+
+        loadFactorColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getLoadFactor()));
+        loadFactorColumn.setCellFactory(column -> new ProgressBarTableCell<FileInfo>() {
+            @Override
+            public void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    if (item < 0) setGraphic(null);
+                }
+            }
+        });
 
         fileTable.setOnMouseClicked(event -> {
             FileInfo item = fileTable.getSelectionModel().getSelectedItem();
@@ -150,7 +174,7 @@ public class ClientPanelController implements Initializable {
             }
             fileTable.getItems().clear();
             for (Path element : pathStream.toList()) {      //нельзя использовать Stream API из-за IOException!
-                fileTable.getItems().add(new FileInfo(element));
+                fileTable.getItems().add(new FileInfo(element, startHandlerMap));
             }
             fileTable.sort();
         } catch (Exception e) {

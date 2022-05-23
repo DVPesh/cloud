@@ -9,9 +9,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.peshekhonov.cloud.Configuration;
-import ru.peshekhonov.cloud.messages.*;
-import ru.peshekhonov.cloud.network.NettyNet;
 import ru.peshekhonov.cloud.handlers.StatusHandler;
+import ru.peshekhonov.cloud.messages.FileRequest;
+import ru.peshekhonov.cloud.messages.StartData;
+import ru.peshekhonov.cloud.messages.SubsequentData;
+import ru.peshekhonov.cloud.network.NettyNet;
 
 import java.io.IOException;
 import java.net.URL;
@@ -20,7 +22,7 @@ import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.ResourceBundle;
 
 @Slf4j
 public class CloudController implements Initializable {
@@ -69,7 +71,7 @@ public class CloudController implements Initializable {
                     buffer.flip();
                     array = new byte[(int) size];
                     buffer.get(array);
-                    socketChannel.writeAndFlush(new StartData(serverPath, size == -1 || fileSize == size, array)).sync();
+                    socketChannel.writeAndFlush(new StartData(serverPath, size == -1 || fileSize == size, array, fileSize)).sync();
                     buffer.clear();
                     int length;
                     while ((length = channel.read(buffer)) != -1) {

@@ -2,6 +2,8 @@ ru\peshekhonov\cloud\controllers\ClientPanelController.class
 ru\peshekhonov\cloud\controllers\ServerPanelController$2.class
 ru\peshekhonov\cloud\network\SerializationPipeline.class
 ru\peshekhonov\cloud\controllers\CloudController.class
+ru\peshekhonov\cloud\controllers\ServerPanelController$3.class
+ru\peshekhonov\cloud\controllers\ClientPanelController$3.class
 ru\peshekhonov\cloud\Client.class
 ru\peshekhonov\cloud\controllers\ClientPanelController$2.class
 ru\peshekhonov\cloud\network\NettyNet.class
