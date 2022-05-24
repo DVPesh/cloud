@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.peshekhonov.cloud.Configuration;
+import ru.peshekhonov.cloud.FileInfo;
 import ru.peshekhonov.cloud.handlers.StatusHandler;
 import ru.peshekhonov.cloud.messages.FileRequest;
 import ru.peshekhonov.cloud.messages.StartData;
@@ -52,13 +53,14 @@ public class CloudController implements Initializable {
 
     @FXML
     private void copyToServerButtonOnActionHandler(ActionEvent actionEvent) {
-        final String selectedItem = clientPanelController.getFileTable().getSelectionModel().getSelectedItem().getFilename();
+        final FileInfo selectedItem = clientPanelController.getFileTable().getSelectionModel().getSelectedItem();
         if (selectedItem == null) {
             return;
         }
-        final Path clientPath = clientPanelController.getCurrentPath().resolve(selectedItem);
-        final Path serverPath = serverPanelController.getCurrentPath().resolve(selectedItem);
-        if (Files.notExists(clientPath)) {
+        final String filename = selectedItem.getFilename();
+        final Path clientPath = clientPanelController.getCurrentPath().resolve(filename);
+        final Path serverPath = serverPanelController.getCurrentPath().resolve(filename);
+        if (Files.notExists(clientPath) || Files.isDirectory(clientPath)) {
             return;
         }
         if (!socketChannel.pipeline().get(StatusHandler.class).getTaskMap().containsKey(serverPath)) {
@@ -104,15 +106,16 @@ public class CloudController implements Initializable {
 
     @FXML
     private void copyToClientButtonOnActionHandler(ActionEvent actionEvent) {
-        String selectedItem = serverPanelController.getFileTable().getSelectionModel().getSelectedItem().getFilename();
-        if (selectedItem == null) {
+        FileInfo selectedItem = serverPanelController.getFileTable().getSelectionModel().getSelectedItem();
+        String selectedFilename = selectedItem.getFilename();
+        if (selectedFilename == null || selectedItem.getType() == FileInfo.FileType.DIRECTORY) {
             return;
         }
-        Path destination = clientPanelController.getCurrentPath().resolve(selectedItem);
+        Path destination = clientPanelController.getCurrentPath().resolve(selectedFilename);
         if (Files.isRegularFile(destination)) {
             return;
         }
-        Path source = serverPanelController.getCurrentPath().resolve(selectedItem);
+        Path source = serverPanelController.getCurrentPath().resolve(selectedFilename);
         socketChannel.writeAndFlush(new FileRequest(source, destination));
     }
 

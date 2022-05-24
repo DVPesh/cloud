@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.peshekhonov.cloud.FileInfo;
 import ru.peshekhonov.cloud.messages.FileInfoListRequest;
+import ru.peshekhonov.cloud.messages.FileRenameRequest;
 
 import java.net.URL;
 import java.nio.file.InvalidPathException;
@@ -232,6 +233,8 @@ public class ServerPanelController implements Initializable {
 
     @FXML
     private void filenameColumnOnEditCommitHandler(TableColumn.CellEditEvent<FileInfo, String> fileInfoStringCellEditEvent) {
-
+        String filename = fileInfoStringCellEditEvent.getOldValue();
+        String newFilename = fileInfoStringCellEditEvent.getNewValue();
+        socketChannel.writeAndFlush(new FileRenameRequest(currentPath.resolve(filename), newFilename));
     }
 }

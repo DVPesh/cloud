@@ -20,6 +20,7 @@ public class SerializationPipeline extends ChannelInitializer<SocketChannel> {
                 new StatusHandler(),
                 new StartHandler(),
                 new ContinueHandler(),
+                new ClientStatusHandler(),
                 new UndefinedHandler()
         );
     }

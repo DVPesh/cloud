@@ -7,6 +7,7 @@ ru\peshekhonov\cloud\handlers\StatusHandler.class
 ru\peshekhonov\cloud\handlers\ContinueHandler.class
 ru\peshekhonov\cloud\FileInfo$FileType.class
 ru\peshekhonov\cloud\handlers\StatusHandler$1.class
+ru\peshekhonov\cloud\messages\FileRenameRequest.class
 ru\peshekhonov\cloud\messages\StartData.class
 ru\peshekhonov\cloud\StatusType.class
 ru\peshekhonov\cloud\messages\FileInfoListRequest.class

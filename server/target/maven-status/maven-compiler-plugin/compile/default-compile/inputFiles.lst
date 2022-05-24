@@ -5,3 +5,4 @@ C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\auth\User.java
 C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\SerializationPipeline.java
 C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\handlers\FileRequestHandler.java
 C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\auth\AuthService.java
+C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\handlers\FileRenameHandler.java

@@ -250,6 +250,16 @@ public class ClientPanelController implements Initializable {
 
     @FXML
     private void filenameColumnOnEditCommitHandler(TableColumn.CellEditEvent<FileInfo, String> fileInfoStringCellEditEvent) {
-
+        try {
+            String filename = fileInfoStringCellEditEvent.getOldValue();
+            Path path = currentPath.resolve(filename);
+            Files.move(path, path.resolveSibling(fileInfoStringCellEditEvent.getNewValue()));
+        } catch(Exception e){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Не удалось переименовать файл", ButtonType.OK);
+            Stage stage = (Stage) fileTable.getScene().getWindow();
+            alert.setX(stage.getX() + (stage.getWidth() - Client.ALERT_WIDTH) / 2);
+            alert.setY(stage.getY() + (stage.getHeight() - Client.ALERT_HEIGHT) / 2);
+            alert.showAndWait();
+        }
     }
 }
