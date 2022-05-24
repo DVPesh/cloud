@@ -4,6 +4,7 @@ ru\peshekhonov\cloud\messages\SubsequentData.class
 ru\peshekhonov\cloud\Configuration.class
 ru\peshekhonov\cloud\FileInfo.class
 ru\peshekhonov\cloud\handlers\StatusHandler.class
+ru\peshekhonov\cloud\messages\FileDeleteRequest.class
 ru\peshekhonov\cloud\handlers\ContinueHandler.class
 ru\peshekhonov\cloud\FileInfo$FileType.class
 ru\peshekhonov\cloud\handlers\StatusHandler$1.class

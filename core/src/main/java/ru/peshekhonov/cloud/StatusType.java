@@ -11,7 +11,9 @@ public enum StatusType {
     HANDLED_ERROR4("files information list cannot be obtained"),
     ERROR1("the file does not exist on server"),
     ERROR2("server failed to read the file"),
-    ERROR3("server failed to rename the file");
+    ERROR3("server failed to rename the file"),
+    ERROR4("server failed to delete the file"),
+    WARNING1("server cannot delete non-empty directory");
 
     private final String text;
 

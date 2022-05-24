@@ -1,6 +1,7 @@
 C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\FileInfoListData.java
 C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\FileInfo.java
 C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\handlers\UndefinedHandler.java
+C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\FileDeleteRequest.java
 C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\Message.java
 C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\Metadata.java
 C:\java\cloud\core\src\main\java\ru\peshekhonov\cloud\messages\SubsequentData.java

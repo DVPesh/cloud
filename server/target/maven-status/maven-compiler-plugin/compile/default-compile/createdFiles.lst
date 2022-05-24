@@ -1,6 +1,7 @@
 ru\peshekhonov\cloud\network\SerializationPipeline.class
 ru\peshekhonov\cloud\FileServer.class
 ru\peshekhonov\cloud\network\auth\User.class
+ru\peshekhonov\cloud\network\handlers\FileDeleteHandler.class
 ru\peshekhonov\cloud\network\handlers\FileRequestHandler.class
 ru\peshekhonov\cloud\network\auth\AuthService.class
 ru\peshekhonov\cloud\network\handlers\FileListRequestHandler.class

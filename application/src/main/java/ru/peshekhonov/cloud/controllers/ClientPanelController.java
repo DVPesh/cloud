@@ -113,10 +113,21 @@ public class ClientPanelController implements Initializable {
             if (item == null) {
                 return;
             }
-            if (event.getCode() == KeyCode.ENTER) {
-                showSelectedDirectoryList(item);
-            } else if (event.getCode() == KeyCode.F3) {
-                fileTable.edit(fileTable.getSelectionModel().getSelectedIndex(), filenameColumn);
+            switch (event.getCode()) {
+                case ENTER:
+                    showSelectedDirectoryList(item);
+                    break;
+                case F3:
+                    fileTable.edit(fileTable.getSelectionModel().getSelectedIndex(), filenameColumn);
+                    break;
+                case DELETE:
+                    try {
+                        Files.deleteIfExists(currentPath.resolve(item.getFilename()));
+                    } catch (IOException e) {
+                        String message = e instanceof DirectoryNotEmptyException ? "Невозможно удалить непустую директорию" : "Не удалось удалить файл";
+                        Alert.AlertType alertType = e instanceof DirectoryNotEmptyException ? Alert.AlertType.WARNING : Alert.AlertType.ERROR;
+                        showAlertDialog(alertType, message);
+                    }
             }
         });
 
@@ -183,11 +194,7 @@ public class ClientPanelController implements Initializable {
             }
             fileTable.sort();
         } catch (Exception e) {
-            Alert alert = new Alert(Alert.AlertType.WARNING, "Не удалось обновить список файлов клиента", ButtonType.OK);
-            Stage stage = (Stage) fileTable.getScene().getWindow();
-            alert.setX(stage.getX() + (stage.getWidth() - Client.ALERT_WIDTH) / 2);
-            alert.setY(stage.getY() + (stage.getHeight() - Client.ALERT_HEIGHT) / 2);
-            alert.showAndWait();
+            showAlertDialog(Alert.AlertType.WARNING, "Не удалось обновить список файлов клиента");
         }
     }
 
@@ -254,12 +261,16 @@ public class ClientPanelController implements Initializable {
             String filename = fileInfoStringCellEditEvent.getOldValue();
             Path path = currentPath.resolve(filename);
             Files.move(path, path.resolveSibling(fileInfoStringCellEditEvent.getNewValue()));
-        } catch(Exception e){
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Не удалось переименовать файл", ButtonType.OK);
-            Stage stage = (Stage) fileTable.getScene().getWindow();
-            alert.setX(stage.getX() + (stage.getWidth() - Client.ALERT_WIDTH) / 2);
-            alert.setY(stage.getY() + (stage.getHeight() - Client.ALERT_HEIGHT) / 2);
-            alert.showAndWait();
+        } catch (Exception e) {
+            showAlertDialog(Alert.AlertType.ERROR, "Не удалось переименовать файл");
         }
+    }
+
+    private void showAlertDialog(Alert.AlertType alertType, String message) {
+        Alert alert = new Alert(alertType, message, ButtonType.OK);
+        Stage stage = (Stage) fileTable.getScene().getWindow();
+        alert.setX(stage.getX() + (stage.getWidth() - Client.ALERT_WIDTH) / 2);
+        alert.setY(stage.getY() + (stage.getHeight() - Client.ALERT_HEIGHT) / 2);
+        alert.showAndWait();
     }
 }

@@ -19,18 +19,37 @@ public class ClientStatusHandler extends SimpleChannelInboundHandler<Message> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
-        if (msg instanceof StatusData status && status.getStatus() == StatusType.ERROR3) {
-            log.error("[ {} ] {}", status.getPath().getFileName().toString(), StatusType.ERROR3.getText());
-            Platform.runLater(() -> {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Не удалось переименовать файл", ButtonType.OK);
-                TableView<FileInfo> fileTable = Client.getInstance().getCloudController().getServerPanelController().getFileTable();
-                Stage stage = (Stage) fileTable.getScene().getWindow();
-                alert.setX(stage.getX() + (stage.getWidth() - Client.ALERT_WIDTH) / 2);
-                alert.setY(stage.getY() + (stage.getHeight() - Client.ALERT_HEIGHT) / 2);
-                alert.showAndWait();
-            });
+        if (msg instanceof StatusData status) {
+            switch (status.getStatus()) {
+                case ERROR3:
+                    log.error("[ {} ] {}", status.getPath().getFileName().toString(), StatusType.ERROR3.getText());
+                    Platform.runLater(() -> {
+                        showAlertDialog(Alert.AlertType.ERROR, "Не удалось переименовать файл");
+                    });
+                    break;
+                case ERROR4:
+                    log.error("[ {} ] {}", status.getPath().getFileName().toString(), StatusType.ERROR4.getText());
+                    Platform.runLater(() -> {
+                        showAlertDialog(Alert.AlertType.ERROR, "Ошибка ввода-вывода при удалении файла");
+                    });
+                    break;
+                case WARNING1:
+                    log.error("[ {} ] {}", status.getPath().getFileName().toString(), StatusType.WARNING1.getText());
+                    Platform.runLater(() -> {
+                        showAlertDialog(Alert.AlertType.WARNING, "Невозможно удалить непустую директорию");
+                    });
+            }
         } else {
             ctx.fireChannelRead(msg);
         }
+    }
+
+    private void showAlertDialog(Alert.AlertType alertType, String message) {
+        Alert alert = new Alert(alertType, message, ButtonType.OK);
+        TableView<FileInfo> fileTable = Client.getInstance().getCloudController().getServerPanelController().getFileTable();
+        Stage stage = (Stage) fileTable.getScene().getWindow();
+        alert.setX(stage.getX() + (stage.getWidth() - Client.ALERT_WIDTH) / 2);
+        alert.setY(stage.getY() + (stage.getHeight() - Client.ALERT_HEIGHT) / 2);
+        alert.showAndWait();
     }
 }

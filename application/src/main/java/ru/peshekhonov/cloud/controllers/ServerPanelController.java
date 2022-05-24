@@ -19,6 +19,7 @@ import javafx.scene.input.KeyCode;
 import lombok.Getter;
 import lombok.Setter;
 import ru.peshekhonov.cloud.FileInfo;
+import ru.peshekhonov.cloud.messages.FileDeleteRequest;
 import ru.peshekhonov.cloud.messages.FileInfoListRequest;
 import ru.peshekhonov.cloud.messages.FileRenameRequest;
 
@@ -114,10 +115,15 @@ public class ServerPanelController implements Initializable {
             if (item == null) {
                 return;
             }
-            if (event.getCode() == KeyCode.ENTER) {
-                showSelectedDirectoryList(item);
-            } else if (event.getCode() == KeyCode.F3) {
-                fileTable.edit(fileTable.getSelectionModel().getSelectedIndex(), filenameColumn);
+            switch (event.getCode()) {
+                case ENTER:
+                    showSelectedDirectoryList(item);
+                    break;
+                case F3:
+                    fileTable.edit(fileTable.getSelectionModel().getSelectedIndex(), filenameColumn);
+                    break;
+                case DELETE:
+                    socketChannel.writeAndFlush(new FileDeleteRequest(currentPath.resolve(item.getFilename())));
             }
         });
 
@@ -219,6 +225,9 @@ public class ServerPanelController implements Initializable {
 
     @FXML
     private void upButtonOnActionHandler(ActionEvent actionEvent) {
+        if (currentPath == null) {
+            return;
+        }
         Path parentPath = currentPath.getParent();
         previousPath = currentPath;
         if (parentPath == null) {
