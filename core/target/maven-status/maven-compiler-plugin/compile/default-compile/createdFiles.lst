@@ -11,6 +11,7 @@ ru\peshekhonov\cloud\handlers\StatusHandler$1.class
 ru\peshekhonov\cloud\messages\FileRenameRequest.class
 ru\peshekhonov\cloud\messages\StartData.class
 ru\peshekhonov\cloud\StatusType.class
+ru\peshekhonov\cloud\messages\FileMoveRequest.class
 ru\peshekhonov\cloud\messages\FileInfoListRequest.class
 ru\peshekhonov\cloud\messages\FileRequest.class
 ru\peshekhonov\cloud\Metadata.class
