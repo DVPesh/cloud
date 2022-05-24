@@ -5,9 +5,11 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import ru.peshekhonov.cloud.Client;
 import ru.peshekhonov.cloud.Configuration;
 import ru.peshekhonov.cloud.FileInfo;
 import ru.peshekhonov.cloud.handlers.StatusHandler;
@@ -48,19 +50,16 @@ public class CloudController implements Initializable {
     }
 
     @FXML
-    private void exitMenuOnActionHandler(ActionEvent actionEvent) {
-        Platform.exit();
-    }
-
-    @FXML
     private void copyToServerButtonOnActionHandler(ActionEvent actionEvent) {
         final FileInfo selectedItem = clientPanelController.getFileTable().getSelectionModel().getSelectedItem();
-        if (selectedItem == null) {
+        final Path clientCurrentPath = clientPanelController.getCurrentPath();
+        final Path serverCurrentPath = serverPanelController.getCurrentPath();
+        if (selectedItem == null || clientCurrentPath == null || serverCurrentPath == null) {
             return;
         }
         final String filename = selectedItem.getFilename();
-        final Path clientPath = clientPanelController.getCurrentPath().resolve(filename);
-        final Path serverPath = serverPanelController.getCurrentPath().resolve(filename);
+        final Path clientPath = clientCurrentPath.resolve(filename);
+        final Path serverPath = serverCurrentPath.resolve(filename);
         if (Files.notExists(clientPath) || Files.isDirectory(clientPath)) {
             return;
         }
@@ -112,27 +111,31 @@ public class CloudController implements Initializable {
     @FXML
     private void copyToClientButtonOnActionHandler(ActionEvent actionEvent) {
         FileInfo selectedItem = serverPanelController.getFileTable().getSelectionModel().getSelectedItem();
+        final Path clientCurrentPath = clientPanelController.getCurrentPath();
+        final Path serverCurrentPath = serverPanelController.getCurrentPath();
         String selectedFilename = selectedItem.getFilename();
-        if (selectedFilename == null || selectedItem.getType() == FileInfo.FileType.DIRECTORY) {
+        if (selectedFilename == null || selectedItem.getType() == FileInfo.FileType.DIRECTORY || clientCurrentPath == null || serverCurrentPath == null) {
             return;
         }
-        Path destination = clientPanelController.getCurrentPath().resolve(selectedFilename);
+        Path destination = clientCurrentPath.resolve(selectedFilename);
         if (Files.isRegularFile(destination)) {
             return;
         }
-        Path source = serverPanelController.getCurrentPath().resolve(selectedFilename);
+        Path source = serverCurrentPath.resolve(selectedFilename);
         socketChannel.writeAndFlush(new FileRequest(source, destination));
     }
 
     @FXML
     private void moveToServerButtonOnActionHandler(ActionEvent actionEvent) {
         final FileInfo selectedItem = clientPanelController.getFileTable().getSelectionModel().getSelectedItem();
-        if (selectedItem == null) {
+        final Path clientCurrentPath = clientPanelController.getCurrentPath();
+        final Path serverCurrentPath = serverPanelController.getCurrentPath();
+        if (selectedItem == null || clientCurrentPath == null || serverCurrentPath == null) {
             return;
         }
         final String filename = selectedItem.getFilename();
-        final Path clientPath = clientPanelController.getCurrentPath().resolve(filename);
-        final Path serverPath = serverPanelController.getCurrentPath().resolve(filename);
+        final Path clientPath = clientCurrentPath.resolve(filename);
+        final Path serverPath = serverCurrentPath.resolve(filename);
         if (Files.notExists(clientPath) || Files.isDirectory(clientPath)) {
             return;
         }
@@ -156,15 +159,45 @@ public class CloudController implements Initializable {
     @FXML
     private void moveToClientButtonOnActionHandler(ActionEvent actionEvent) {
         FileInfo selectedItem = serverPanelController.getFileTable().getSelectionModel().getSelectedItem();
+        final Path clientCurrentPath = clientPanelController.getCurrentPath();
+        final Path serverCurrentPath = serverPanelController.getCurrentPath();
         String selectedFilename = selectedItem.getFilename();
-        if (selectedFilename == null || selectedItem.getType() == FileInfo.FileType.DIRECTORY) {
+        if (selectedFilename == null || selectedItem.getType() == FileInfo.FileType.DIRECTORY || clientCurrentPath == null || serverCurrentPath == null) {
             return;
         }
-        Path destination = clientPanelController.getCurrentPath().resolve(selectedFilename);
+        Path destination = clientCurrentPath.resolve(selectedFilename);
         if (Files.isRegularFile(destination)) {
             return;
         }
-        Path source = serverPanelController.getCurrentPath().resolve(selectedFilename);
+        Path source = serverCurrentPath.resolve(selectedFilename);
         socketChannel.writeAndFlush(new FileMoveRequest(source, destination));
+    }
+
+    @FXML
+    public void executeMenuItemRegistration(ActionEvent actionEvent) {
+        Stage registerStage = Client.getInstance().getRegisterStage();
+        Stage primaryStage = Client.getInstance().getPrimaryStage();
+        registerStage.setX(primaryStage.getX() + (primaryStage.getWidth() - registerStage.getWidth()) / 2);
+        registerStage.setY(primaryStage.getY() + (primaryStage.getHeight() - registerStage.getHeight()) / 2);
+        registerStage.show();
+    }
+
+    @FXML
+    public void executeMenuItemLogin(ActionEvent actionEvent) {
+        Stage loginStage = Client.getInstance().getLoginStage();
+        Stage primaryStage = Client.getInstance().getPrimaryStage();
+        loginStage.setX(primaryStage.getX() + (primaryStage.getWidth() - loginStage.getWidth()) / 2);
+        loginStage.setY(primaryStage.getY() + (primaryStage.getHeight() - loginStage.getHeight()) / 2);
+        loginStage.show();
+    }
+
+    @FXML
+    public void executeMenuItemLogout(ActionEvent actionEvent) {
+
+    }
+
+    @FXML
+    private void exitMenuOnActionHandler(ActionEvent actionEvent) {
+        Platform.exit();
     }
 }

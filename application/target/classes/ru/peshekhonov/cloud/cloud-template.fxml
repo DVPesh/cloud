@@ -8,41 +8,42 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="400.0" prefWidth="810.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.peshekhonov.cloud.controllers.CloudController">
+<VBox prefHeight="400.0" prefWidth="810.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ru.peshekhonov.cloud.controllers.CloudController">
     <MenuBar>
         <Menu text="Меню">
-            <MenuItem text="Регистрация" />
-            <MenuItem text="Войти" />
-            <MenuItem text="Выйти" />
-            <MenuItem onAction="#exitMenuOnActionHandler" text="Закрыть" />
+            <MenuItem onAction="#executeMenuItemRegistration" text="Регистрация"/>
+            <MenuItem onAction="#executeMenuItemLogin" text="Войти"/>
+            <MenuItem onAction="#executeMenuItemLogout" text="Выйти"/>
+            <MenuItem onAction="#exitMenuOnActionHandler" text="Закрыть"/>
         </Menu>
     </MenuBar>
     <HBox VBox.vgrow="ALWAYS">
-        <fx:include fx:id="clientPanel" source="client-panel.fxml" HBox.hgrow="ALWAYS" />
+        <fx:include fx:id="clientPanel" source="client-panel.fxml" HBox.hgrow="ALWAYS"/>
         <VBox alignment="CENTER" minWidth="-Infinity" HBox.hgrow="NEVER">
             <children>
                 <Button mnemonicParsing="false" onAction="#copyToServerButtonOnActionHandler" text="&#146;→&#146;">
                     <VBox.margin>
-                        <Insets bottom="5.0" top="75.0" />
+                        <Insets bottom="5.0" top="75.0"/>
                     </VBox.margin>
                 </Button>
                 <Button mnemonicParsing="false" onAction="#copyToClientButtonOnActionHandler" text="&#146;←&#146;">
                     <VBox.margin>
-                        <Insets bottom="10.0" top="5.0" />
+                        <Insets bottom="10.0" top="5.0"/>
                     </VBox.margin>
                 </Button>
                 <Button mnemonicParsing="false" onAction="#moveToServerButtonOnActionHandler" text=" →&#146;">
                     <VBox.margin>
-                        <Insets bottom="5.0" top="10.0" />
+                        <Insets bottom="5.0" top="10.0"/>
                     </VBox.margin>
                 </Button>
                 <Button mnemonicParsing="false" onAction="#moveToClientButtonOnActionHandler" text="&#146;← ">
                     <VBox.margin>
-                        <Insets top="5.0" />
+                        <Insets top="5.0"/>
                     </VBox.margin>
                 </Button>
             </children>
         </VBox>
-        <fx:include fx:id="serverPanel" source="server-panel.fxml" HBox.hgrow="ALWAYS" />
+        <fx:include fx:id="serverPanel" source="server-panel.fxml" HBox.hgrow="ALWAYS"/>
     </HBox>
 </VBox>
