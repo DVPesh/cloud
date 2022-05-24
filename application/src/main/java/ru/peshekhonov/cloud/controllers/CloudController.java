@@ -193,7 +193,7 @@ public class CloudController implements Initializable {
 
     @FXML
     public void executeMenuItemLogout(ActionEvent actionEvent) {
-
+        net.stopNetty();
     }
 
     @FXML
