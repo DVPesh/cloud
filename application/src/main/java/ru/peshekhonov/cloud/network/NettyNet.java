@@ -18,17 +18,18 @@ public class NettyNet {
     @Getter
     private final EventLoopGroup hard;
     private ChannelFuture channelFuture;
+    private final Bootstrap bootstrap;
 
     public NettyNet() {
-        Bootstrap bootstrap = new Bootstrap();
+        bootstrap = new Bootstrap();
         hard = new NioEventLoopGroup();
         bootstrap.group(hard);
         bootstrap.channel(NioSocketChannel.class);
         bootstrap.handler(new SerializationPipeline());
-        startNetty(bootstrap);
+        startNetty();
     }
 
-    public void startNetty(Bootstrap bootstrap) {
+    public void startNetty() {
         try {
             channelFuture = bootstrap.connect(SERVER_HOST, Configuration.SERVER_PORT).sync();
             log.info("Client started...");
@@ -52,6 +53,8 @@ public class NettyNet {
     }
 
     public void stopNetty() {
-        channelFuture.channel().close();
+        if (channelFuture != null) {
+            channelFuture.channel().close();
+        }
     }
 }

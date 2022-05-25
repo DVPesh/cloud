@@ -1,11 +1,14 @@
 package ru.peshekhonov.cloud.controllers;
 
+import io.netty.channel.Channel;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import lombok.Setter;
 import ru.peshekhonov.cloud.Client;
 import ru.peshekhonov.cloud.FileInfo;
+
 
 public class RegisterController {
 
@@ -17,6 +20,8 @@ public class RegisterController {
     public PasswordField passwordField;
     @FXML
     public Button userButton;
+    @Setter
+    private Channel socketChannel;
 
     @FXML
     public void register(ActionEvent actionEvent) {
@@ -27,6 +32,7 @@ public class RegisterController {
             showAlertDialog(Alert.AlertType.WARNING, "Имя пользователя, логин и пароль должны быть указаны!");
             return;
         }
+        Client.getInstance().getCloudController().getNet().startNetty();
 
     }
 

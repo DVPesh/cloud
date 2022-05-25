@@ -7,6 +7,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.Getter;
 import ru.peshekhonov.cloud.controllers.CloudController;
+import ru.peshekhonov.cloud.controllers.LoginController;
+import ru.peshekhonov.cloud.controllers.RegisterController;
 
 import java.io.IOException;
 
@@ -66,6 +68,14 @@ public class Client extends Application {
 
     public CloudController getCloudController() {
         return cloudLoader.getController();
+    }
+
+    public RegisterController getRegisterController() {
+        return registerLoader.getController();
+    }
+
+    public LoginController getLoginController() {
+        return loginLoader.getController();
     }
 
     @Override
