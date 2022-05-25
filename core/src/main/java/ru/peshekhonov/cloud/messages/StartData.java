@@ -11,11 +11,14 @@ public class StartData extends Message {
     boolean endOfFile;
     private final @Getter
     byte[] data;
+    private final @Getter
+    long size;
 
-    public StartData(Path path, boolean endOfFile, byte[] data) {
+    public StartData(Path path, boolean endOfFile, byte[] data, long size) {
         this.path = path.toString();
         this.endOfFile = endOfFile;
         this.data = data;
+        this.size = size;
     }
 
     public Path getPath() {

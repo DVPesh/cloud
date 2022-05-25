@@ -7,7 +7,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.ProgressBarTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -15,10 +19,13 @@ import javafx.scene.input.KeyCode;
 import lombok.Getter;
 import lombok.Setter;
 import ru.peshekhonov.cloud.FileInfo;
+import ru.peshekhonov.cloud.messages.FileDeleteRequest;
 import ru.peshekhonov.cloud.messages.FileInfoListRequest;
+import ru.peshekhonov.cloud.messages.FileRenameRequest;
 
 import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -41,7 +48,7 @@ public class ServerPanelController implements Initializable {
     @FXML
     private TableColumn<FileInfo, String> lastModifiedColumn;
     @FXML
-    private TableColumn<FileInfo, Long> loadFactorColumn;
+    private TableColumn<FileInfo, Double> loadFactorColumn;
     @Getter
     private Path currentPath = Path.of("user");
     private Path previousPath;
@@ -81,6 +88,21 @@ public class ServerPanelController implements Initializable {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         lastModifiedColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getLastModified().format(dtf)));
 
+        loadFactorColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getLoadFactor()));
+        loadFactorColumn.setCellFactory(column -> new ProgressBarTableCell<FileInfo>() {
+            @Override
+            public void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    if (item < 0) setGraphic(null);
+                }
+            }
+        });
+
         fileTable.setOnMouseClicked(event -> {
             FileInfo item = fileTable.getSelectionModel().getSelectedItem();
             if (event.getClickCount() == 2 && item != null) {
@@ -93,10 +115,15 @@ public class ServerPanelController implements Initializable {
             if (item == null) {
                 return;
             }
-            if (event.getCode() == KeyCode.ENTER) {
-                showSelectedDirectoryList(item);
-            } else if (event.getCode() == KeyCode.F3) {
-                fileTable.edit(fileTable.getSelectionModel().getSelectedIndex(), filenameColumn);
+            switch (event.getCode()) {
+                case ENTER:
+                    showSelectedDirectoryList(item);
+                    break;
+                case F3:
+                    fileTable.edit(fileTable.getSelectionModel().getSelectedIndex(), filenameColumn);
+                    break;
+                case DELETE:
+                    socketChannel.writeAndFlush(new FileDeleteRequest(currentPath.resolve(item.getFilename())));
             }
         });
 
@@ -198,6 +225,9 @@ public class ServerPanelController implements Initializable {
 
     @FXML
     private void upButtonOnActionHandler(ActionEvent actionEvent) {
+        if (currentPath == null) {
+            return;
+        }
         Path parentPath = currentPath.getParent();
         previousPath = currentPath;
         if (parentPath == null) {
@@ -212,6 +242,8 @@ public class ServerPanelController implements Initializable {
 
     @FXML
     private void filenameColumnOnEditCommitHandler(TableColumn.CellEditEvent<FileInfo, String> fileInfoStringCellEditEvent) {
-
+        String filename = fileInfoStringCellEditEvent.getOldValue();
+        String newFilename = fileInfoStringCellEditEvent.getNewValue();
+        socketChannel.writeAndFlush(new FileRenameRequest(currentPath.resolve(filename), newFilename));
     }
 }

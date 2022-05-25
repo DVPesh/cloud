@@ -19,14 +19,14 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class StartHandler extends SimpleChannelInboundHandler<Message> {
 
     private final @Getter
-    Map<Path, Metadata> map = new HashMap<>();
+    Map<Path, Metadata> map = new ConcurrentHashMap<>();
 
     private final ByteBuffer buffer = ByteBuffer.allocate(Configuration.BUFFER_SIZE);
     @Setter
@@ -44,6 +44,7 @@ public class StartHandler extends SimpleChannelInboundHandler<Message> {
             try {
                 writeChannel = Files.newByteChannel(fullPath, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
                 metadata.channel = writeChannel;
+                metadata.size = startdata.getSize();
                 map.put(path, metadata);
                 buffer.clear();
                 buffer.put(startdata.getData());

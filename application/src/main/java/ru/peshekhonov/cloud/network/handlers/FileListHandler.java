@@ -8,6 +8,7 @@ import ru.peshekhonov.cloud.Client;
 import ru.peshekhonov.cloud.StatusType;
 import ru.peshekhonov.cloud.controllers.CloudController;
 import ru.peshekhonov.cloud.controllers.ServerPanelController;
+import ru.peshekhonov.cloud.handlers.StartHandler;
 import ru.peshekhonov.cloud.messages.FileInfoListData;
 import ru.peshekhonov.cloud.messages.Message;
 import ru.peshekhonov.cloud.messages.StatusData;
@@ -25,9 +26,10 @@ public class FileListHandler extends SimpleChannelInboundHandler<Message> {
                 serverPanelController.updateListAndPreserveSelection(list.getFileInfoList(), list.getDirectory());
             });
         } else if (msg instanceof StatusData status && status.getStatus() == StatusType.HANDLED_ERROR4) {
-            String fullFilename = status.getPath().toString();
-            serverPanelController.clearList();
-            log.error("[ {} ] {}", fullFilename, StatusType.HANDLED_ERROR4.getText());
+            log.error("[ {} ] {}", status.getPath().toString(), StatusType.HANDLED_ERROR4.getText());
+            Platform.runLater(() -> {
+                serverPanelController.clearList();
+            });
         } else {
             ctx.fireChannelRead(msg);
         }
@@ -39,6 +41,18 @@ public class FileListHandler extends SimpleChannelInboundHandler<Message> {
         cloudController.setSocketChannel(ctx.channel());
         serverPanelController = cloudController.getServerPanelController();
         serverPanelController.setSocketChannel(ctx.channel());
+        cloudController.getClientPanelController().setStartHandlerMap(ctx.pipeline().get(StartHandler.class).getMap());
+        Client.getInstance().getRegisterController().setSocketChannel(ctx.channel());
         log.info("Channel was registered");
+    }
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) {
+        log.info("Channel active");
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) {
+        log.info("Channel inactive");
     }
 }

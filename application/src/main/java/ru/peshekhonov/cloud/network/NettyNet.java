@@ -15,18 +15,23 @@ public class NettyNet {
 
     public static final String SERVER_HOST = "localhost";
 
-    private final @Getter
-    EventLoopGroup hard;
+    @Getter
+    private final EventLoopGroup hard;
+    private ChannelFuture channelFuture;
+    private final Bootstrap bootstrap;
 
     public NettyNet() {
-        Bootstrap bootstrap = new Bootstrap();
+        bootstrap = new Bootstrap();
         hard = new NioEventLoopGroup();
-        try {
-            bootstrap.group(hard);
-            bootstrap.channel(NioSocketChannel.class);
-            bootstrap.handler(new SerializationPipeline());
+        bootstrap.group(hard);
+        bootstrap.channel(NioSocketChannel.class);
+        bootstrap.handler(new SerializationPipeline());
+        startNetty();
+    }
 
-            ChannelFuture channelFuture = bootstrap.connect(SERVER_HOST, Configuration.SERVER_PORT).sync();
+    public void startNetty() {
+        try {
+            channelFuture = bootstrap.connect(SERVER_HOST, Configuration.SERVER_PORT).sync();
             log.info("Client started...");
             channelFuture.channel().closeFuture().addListener(new ChannelFutureListener() {
                 public void operationComplete(ChannelFuture future) {
@@ -34,16 +39,22 @@ public class NettyNet {
                     if (cause != null) {
                         log.error("", cause);
                     }
-                    if (!hard.isShuttingDown()) {
-                        hard.shutdownGracefully();
-                    }
+//                    if (!hard.isShuttingDown()) {
+//                        hard.shutdownGracefully();
+//                    }
                 }
             });
         } catch (Exception e) {
             log.error("", e);
-            if (!hard.isShuttingDown()) {
-                hard.shutdownGracefully();
-            }
+//            if (!hard.isShuttingDown()) {
+//                hard.shutdownGracefully();
+//            }
+        }
+    }
+
+    public void stopNetty() {
+        if (channelFuture != null) {
+            channelFuture.channel().close();
         }
     }
 }
