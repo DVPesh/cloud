@@ -53,6 +53,9 @@ public class CloudController implements Initializable {
 
     @FXML
     private void copyToServerButtonOnActionHandler(ActionEvent actionEvent) {
+        if (socketChannel == null) {
+            return;
+        }
         final FileInfo selectedItem = clientPanelController.getFileTable().getSelectionModel().getSelectedItem();
         final Path clientCurrentPath = clientPanelController.getCurrentPath();
         final Path serverCurrentPath = serverPanelController.getCurrentPath();
@@ -124,11 +127,16 @@ public class CloudController implements Initializable {
             return;
         }
         Path source = serverCurrentPath.resolve(selectedFilename);
-        socketChannel.writeAndFlush(new FileRequest(source, destination));
+        if (socketChannel != null) {
+            socketChannel.writeAndFlush(new FileRequest(source, destination));
+        }
     }
 
     @FXML
     private void moveToServerButtonOnActionHandler(ActionEvent actionEvent) {
+        if (socketChannel == null) {
+            return;
+        }
         final FileInfo selectedItem = clientPanelController.getFileTable().getSelectionModel().getSelectedItem();
         final Path clientCurrentPath = clientPanelController.getCurrentPath();
         final Path serverCurrentPath = serverPanelController.getCurrentPath();
@@ -172,7 +180,9 @@ public class CloudController implements Initializable {
             return;
         }
         Path source = serverCurrentPath.resolve(selectedFilename);
-        socketChannel.writeAndFlush(new FileMoveRequest(source, destination));
+        if (socketChannel != null) {
+            socketChannel.writeAndFlush(new FileMoveRequest(source, destination));
+        }
     }
 
     @FXML
@@ -216,6 +226,7 @@ public class CloudController implements Initializable {
         Client.username = null;
         Client.getInstance().getPrimaryStage().setTitle("Сетевое хранилище");
         net.stopNetty();
+        serverPanelController.clearList();
     }
 
     @FXML

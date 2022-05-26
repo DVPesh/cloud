@@ -123,7 +123,9 @@ public class ServerPanelController implements Initializable {
                     fileTable.edit(fileTable.getSelectionModel().getSelectedIndex(), filenameColumn);
                     break;
                 case DELETE:
-                    socketChannel.writeAndFlush(new FileDeleteRequest(currentPath.resolve(item.getFilename())));
+                    if (socketChannel != null && currentPath != null) {
+                        socketChannel.writeAndFlush(new FileDeleteRequest(currentPath.resolve(item.getFilename())));
+                    }
             }
         });
 
@@ -140,7 +142,9 @@ public class ServerPanelController implements Initializable {
     }
 
     private void requestFileInfoList(Path directory) {
-        socketChannel.writeAndFlush(new FileInfoListRequest(directory));
+        if (socketChannel != null) {
+            socketChannel.writeAndFlush(new FileInfoListRequest(directory));
+        }
     }
 
     public void clearList() {
@@ -231,6 +235,8 @@ public class ServerPanelController implements Initializable {
     private void filenameColumnOnEditCommitHandler(TableColumn.CellEditEvent<FileInfo, String> fileInfoStringCellEditEvent) {
         String filename = fileInfoStringCellEditEvent.getOldValue();
         String newFilename = fileInfoStringCellEditEvent.getNewValue();
-        socketChannel.writeAndFlush(new FileRenameRequest(currentPath.resolve(filename), newFilename));
+        if (socketChannel != null && currentPath != null) {
+            socketChannel.writeAndFlush(new FileRenameRequest(currentPath.resolve(filename), newFilename));
+        }
     }
 }

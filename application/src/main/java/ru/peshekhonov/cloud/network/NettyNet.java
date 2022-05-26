@@ -45,6 +45,7 @@ public class NettyNet {
                         Client.username = null;
                         Client.login = null;
                         Client.getInstance().getPrimaryStage().setTitle("Сетевое хранилище");
+                        Client.getInstance().getCloudController().getServerPanelController().clearList();
                     });
                 }
             });

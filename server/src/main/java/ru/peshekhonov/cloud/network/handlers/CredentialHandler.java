@@ -74,7 +74,12 @@ public class CredentialHandler extends SimpleChannelInboundHandler<Message> {
                     ctx.writeAndFlush(new AuthNotOk(StatusType.AUTH_NOT_OK3));
                     return;
                 }
-                setBasePath(ctx, Server.SERVER_DIR.resolve(login));
+                Path directory = Server.SERVER_DIR.resolve(login);
+                if (!Files.isDirectory(directory)) {
+                    ctx.writeAndFlush(new AuthNotOk(StatusType.AUTH_NOT_OK3));
+                    return;
+                }
+                setBasePath(ctx, directory);
                 ctx.writeAndFlush(new AuthOk(login, user.getUserName()));
                 ctx.pipeline().remove(CredentialHandler.class);
             } catch (SQLException e) {

@@ -1,6 +1,5 @@
 package ru.peshekhonov.cloud.controllers;
 
-import io.netty.channel.Channel;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -12,14 +11,12 @@ import javafx.scene.control.cell.ProgressBarTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 import ru.peshekhonov.cloud.Client;
 import ru.peshekhonov.cloud.FileInfo;
 import ru.peshekhonov.cloud.Metadata;
-import ru.peshekhonov.cloud.handlers.StartHandler;
 
 import java.io.IOException;
 import java.net.URL;
@@ -122,7 +119,9 @@ public class ClientPanelController implements Initializable {
                     break;
                 case DELETE:
                     try {
-                        Files.deleteIfExists(currentPath.resolve(item.getFilename()));
+                        if (currentPath != null) {
+                            Files.deleteIfExists(currentPath.resolve(item.getFilename()));
+                        }
                     } catch (IOException e) {
                         String message = e instanceof DirectoryNotEmptyException ? "Невозможно удалить непустую директорию" : "Не удалось удалить файл";
                         Alert.AlertType alertType = e instanceof DirectoryNotEmptyException ? Alert.AlertType.WARNING : Alert.AlertType.ERROR;
@@ -257,6 +256,9 @@ public class ClientPanelController implements Initializable {
 
     @FXML
     private void filenameColumnOnEditCommitHandler(TableColumn.CellEditEvent<FileInfo, String> fileInfoStringCellEditEvent) {
+        if (currentPath == null) {
+            return;
+        }
         try {
             String filename = fileInfoStringCellEditEvent.getOldValue();
             Path path = currentPath.resolve(filename);
