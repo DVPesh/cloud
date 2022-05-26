@@ -50,6 +50,12 @@ public class ClientPanelController implements Initializable {
     @Setter
     private Map<Path, Metadata> startHandlerMap;
 
+    private enum Mode {
+        RENAME, CREATE_DIR, REGULAR
+    }
+
+    private Mode mode;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Image dirImage = new Image("/folder-icon.png", 0, 15, true, false);
@@ -107,19 +113,29 @@ public class ClientPanelController implements Initializable {
 
         fileTable.setOnKeyPressed(event -> {
             FileInfo item = fileTable.getSelectionModel().getSelectedItem();
-            if (item == null) {
-                return;
-            }
             switch (event.getCode()) {
                 case ENTER:
-                    showSelectedDirectoryList(item);
+                    if (item != null) {
+                        showSelectedDirectoryList(item);
+                    }
                     break;
                 case F3:
-                    fileTable.edit(fileTable.getSelectionModel().getSelectedIndex(), filenameColumn);
+                    if (item != null) {
+                        mode = Mode.RENAME;
+                        fileTable.edit(fileTable.getSelectionModel().getSelectedIndex(), filenameColumn);
+                    }
+                    break;
+                case F4:
+                    if (currentPath != null && !currentPath.equals(Path.of(""))) {
+                        fileTable.getItems().add(0, new FileInfo());
+                        fileTable.getSelectionModel().select(0);
+                        mode = Mode.CREATE_DIR;
+                        fileTable.edit(0, filenameColumn);
+                    }
                     break;
                 case DELETE:
                     try {
-                        if (currentPath != null) {
+                        if (currentPath != null && item != null) {
                             Files.deleteIfExists(currentPath.resolve(item.getFilename()));
                         }
                     } catch (IOException e) {
@@ -257,15 +273,29 @@ public class ClientPanelController implements Initializable {
     @FXML
     private void filenameColumnOnEditCommitHandler(TableColumn.CellEditEvent<FileInfo, String> fileInfoStringCellEditEvent) {
         if (currentPath == null) {
+            mode = Mode.REGULAR;
             return;
         }
-        try {
-            String filename = fileInfoStringCellEditEvent.getOldValue();
-            Path path = currentPath.resolve(filename);
-            Files.move(path, path.resolveSibling(fileInfoStringCellEditEvent.getNewValue()));
-        } catch (Exception e) {
-            showAlertDialog(Alert.AlertType.ERROR, "Не удалось переименовать файл");
+        if (mode == Mode.RENAME) {
+            try {
+                String filename = fileInfoStringCellEditEvent.getOldValue();
+                Path path = currentPath.resolve(filename);
+                Files.move(path, path.resolveSibling(fileInfoStringCellEditEvent.getNewValue()));
+            } catch (Exception e) {
+                showAlertDialog(Alert.AlertType.ERROR, "Не удалось переименовать файл");
+            }
+        } else if (mode == Mode.CREATE_DIR) {
+            try {
+                Files.createDirectory(currentPath.resolve(fileInfoStringCellEditEvent.getNewValue()));
+            } catch (FileAlreadyExistsException e) {
+                showAlertDialog(Alert.AlertType.WARNING, "Файл с таким названием уже существует");
+            } catch (InvalidPathException e) {
+                showAlertDialog(Alert.AlertType.WARNING, "Такое название не допустимо!");
+            } catch (IOException e) {
+                showAlertDialog(Alert.AlertType.ERROR, "Не удалось создать директорию");
+            }
         }
+        mode = Mode.REGULAR;
     }
 
     private void showAlertDialog(Alert.AlertType alertType, String message) {
