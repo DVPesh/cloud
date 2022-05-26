@@ -46,8 +46,7 @@ public class ClientStatusHandler extends SimpleChannelInboundHandler<Message> {
 
     private void showAlertDialog(Alert.AlertType alertType, String message) {
         Alert alert = new Alert(alertType, message, ButtonType.OK);
-        TableView<FileInfo> fileTable = Client.getInstance().getCloudController().getServerPanelController().getFileTable();
-        Stage stage = (Stage) fileTable.getScene().getWindow();
+        Stage stage = Client.getInstance().getPrimaryStage();
         alert.setX(stage.getX() + (stage.getWidth() - Client.ALERT_WIDTH) / 2);
         alert.setY(stage.getY() + (stage.getHeight() - Client.ALERT_HEIGHT) / 2);
         alert.showAndWait();

@@ -15,7 +15,6 @@ import javafx.scene.control.cell.ProgressBarTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import lombok.Getter;
 import lombok.Setter;
 import ru.peshekhonov.cloud.FileInfo;
@@ -50,7 +49,7 @@ public class ServerPanelController implements Initializable {
     @FXML
     private TableColumn<FileInfo, Double> loadFactorColumn;
     @Getter
-    private Path currentPath = Path.of("user");
+    private Path currentPath = Path.of("");
     private Path previousPath;
     @Setter
     private Channel socketChannel;
@@ -66,6 +65,7 @@ public class ServerPanelController implements Initializable {
 
         filenameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getFilename()));
         filenameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        filenameColumn.setEditable(true);
 
         fileSizeColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getSize()));
         fileSizeColumn.setCellFactory(column -> new TableCell<FileInfo, Long>() {
@@ -131,7 +131,7 @@ public class ServerPanelController implements Initializable {
             @Override
             public void run() {
                 Platform.runLater(() -> {
-                    if (currentPath != null) {
+                    if (currentPath != null && socketChannel != null) {
                         requestFileInfoList(currentPath);
                     }
                 });
@@ -182,7 +182,6 @@ public class ServerPanelController implements Initializable {
             Path path = currentPath.resolve(item.getFilename());
             previousPath = currentPath;
             currentPath = path;
-            filenameColumn.setEditable(true);
             requestFileInfoList(currentPath);
         } catch (InvalidPathException e) {
             clearList();
@@ -191,17 +190,8 @@ public class ServerPanelController implements Initializable {
 
     @FXML
     private void rootButtonOnActionHandler(ActionEvent actionEvent) {
-        filenameColumn.setEditable(false);
         previousPath = currentPath;
         currentPath = Path.of("");
-        requestFileInfoList(currentPath);
-    }
-
-    @FXML
-    private void workingDirectoryButtonOnActionHandler(ActionEvent actionEvent) {
-        filenameColumn.setEditable(true);
-        previousPath = currentPath;
-        currentPath = Path.of("user");
         requestFileInfoList(currentPath);
     }
 
@@ -216,7 +206,6 @@ public class ServerPanelController implements Initializable {
             }
             previousPath = currentPath;
             currentPath = path;
-            filenameColumn.setEditable(!str.equals(""));
             requestFileInfoList(currentPath);
         } catch (InvalidPathException e) {
             clearList();
@@ -232,10 +221,8 @@ public class ServerPanelController implements Initializable {
         previousPath = currentPath;
         if (parentPath == null) {
             currentPath = Path.of("");
-            filenameColumn.setEditable(false);
         } else {
             currentPath = parentPath;
-            filenameColumn.setEditable(true);
         }
         requestFileInfoList(currentPath);
     }

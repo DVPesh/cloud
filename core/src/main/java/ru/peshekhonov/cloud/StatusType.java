@@ -14,7 +14,13 @@ public enum StatusType {
     ERROR3("server failed to rename the file"),
     ERROR4("server failed to delete the file"),
     ERROR5("server failed to move the file"),
-    WARNING1("server cannot delete non-empty directory");
+    ERROR6("database access error"),
+    ERROR7("server cannot create directory"),
+    WARNING1("server cannot delete non-empty directory"),
+    AUTH_NOT_OK1("the login already exists"),
+    AUTH_NOT_OK2("the password already exists"),
+    AUTH_NOT_OK3("invalid credentials"),
+    AUTH_NOT_OK4("the such login is not allowed");
 
     private final String text;
 

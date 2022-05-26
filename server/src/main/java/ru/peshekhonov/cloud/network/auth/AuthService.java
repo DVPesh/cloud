@@ -117,8 +117,7 @@ public class AuthService {
         getUserPrepared.setString(2, password);
         ResultSet resultSet = getUserPrepared.executeQuery();
         if (resultSet.next()) {
-            return new User(resultSet.getInt("id"), resultSet.getString("login"),
-                    resultSet.getString("password"), resultSet.getString("username"));
+            return new User(resultSet.getInt("id"), "login", "password", resultSet.getString("username"));
         }
         return null;
     }

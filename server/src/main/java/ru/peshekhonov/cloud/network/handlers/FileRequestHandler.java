@@ -7,7 +7,6 @@ import ru.peshekhonov.cloud.Configuration;
 import ru.peshekhonov.cloud.StatusType;
 import ru.peshekhonov.cloud.handlers.StatusHandler;
 import ru.peshekhonov.cloud.messages.*;
-import ru.peshekhonov.cloud.network.Server;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -19,13 +18,15 @@ import java.nio.file.StandardOpenOption;
 @Slf4j
 public class FileRequestHandler extends SimpleChannelInboundHandler<Message> {
 
+    public Path base;
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
         if (msg instanceof FileRequest request) {
             final String filename = request.getSource().getFileName().toString();
             final Path destination = request.getDestination();
             final Path source = request.getSource();
-            final Path serverSource = Server.SERVER_DIR.resolve(source);
+            final Path serverSource = base.resolve(source);
             if (Files.notExists(serverSource)) {
                 ctx.writeAndFlush(new StatusData(source, StatusType.ERROR1));
                 log.error("[ {} ] {}", filename, StatusType.ERROR1.getText());
@@ -49,7 +50,7 @@ public class FileRequestHandler extends SimpleChannelInboundHandler<Message> {
             final String filename = request.getSource().getFileName().toString();
             final Path destination = request.getDestination();
             final Path source = request.getSource();
-            final Path serverSource = Server.SERVER_DIR.resolve(source);
+            final Path serverSource = base.resolve(source);
             if (Files.notExists(serverSource)) {
                 ctx.writeAndFlush(new StatusData(source, StatusType.ERROR1));
                 log.error("[ {} ] {}", filename, StatusType.ERROR1.getText());

@@ -2,6 +2,7 @@ C:\java\cloud\application\src\main\java\ru\peshekhonov\cloud\controllers\ServerP
 C:\java\cloud\application\src\main\java\ru\peshekhonov\cloud\network\handlers\FileListHandler.java
 C:\java\cloud\application\src\main\java\ru\peshekhonov\cloud\network\SerializationPipeline.java
 C:\java\cloud\application\src\main\java\ru\peshekhonov\cloud\controllers\ClientPanelController.java
+C:\java\cloud\application\src\main\java\ru\peshekhonov\cloud\network\handlers\AuthHandler.java
 C:\java\cloud\application\src\main\java\ru\peshekhonov\cloud\controllers\LoginController.java
 C:\java\cloud\application\src\main\java\ru\peshekhonov\cloud\Client.java
 C:\java\cloud\application\src\main\java\ru\peshekhonov\cloud\network\handlers\ClientStatusHandler.java

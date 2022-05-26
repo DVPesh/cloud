@@ -29,11 +29,6 @@
                                 <Insets left="2.5" right="2.5" top="5.0"/>
                             </HBox.margin>
                         </Button>
-                        <Button mnemonicParsing="false" onAction="#workingDirectoryButtonOnActionHandler" text=".">
-                            <HBox.margin>
-                                <Insets left="2.5" right="2.5" top="5.0"/>
-                            </HBox.margin>
-                        </Button>
                         <TextField fx:id="textField" onAction="#textFieldOnActionHandler" HBox.hgrow="ALWAYS">
                             <HBox.margin>
                                 <Insets left="2.5" right="2.5" top="5.0"/>

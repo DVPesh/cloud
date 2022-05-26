@@ -42,7 +42,6 @@ public class FileListHandler extends SimpleChannelInboundHandler<Message> {
         serverPanelController = cloudController.getServerPanelController();
         serverPanelController.setSocketChannel(ctx.channel());
         cloudController.getClientPanelController().setStartHandlerMap(ctx.pipeline().get(StartHandler.class).getMap());
-        Client.getInstance().getRegisterController().setSocketChannel(ctx.channel());
         log.info("Channel was registered");
     }
 

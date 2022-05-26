@@ -5,6 +5,8 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
@@ -68,7 +70,7 @@ public class CloudController implements Initializable {
                 try (SeekableByteChannel channel = Files.newByteChannel(clientPath, StandardOpenOption.READ)) {
                     copyFile(serverPath, channel);
                 } catch (IOException | InterruptedException e) {
-                    log.error("[ {} ] client failed to copy the file", selectedItem);
+                    log.error("[ {} ] client failed to copy the file", selectedItem.getFilename());
                 } finally {
                     socketChannel.pipeline().get(StatusHandler.class).getTaskMap().remove(serverPath);
                 }
@@ -146,7 +148,7 @@ public class CloudController implements Initializable {
                     channel.close();
                     Files.delete(clientPath);
                 } catch (IOException | InterruptedException e) {
-                    log.error("[ {} ] client failed to move the file", selectedItem);
+                    log.error("[ {} ] client failed to move the file", selectedItem.getFilename());
                 } finally {
                     socketChannel.pipeline().get(StatusHandler.class).getTaskMap().remove(serverPath);
                 }
@@ -175,6 +177,15 @@ public class CloudController implements Initializable {
 
     @FXML
     public void executeMenuItemRegistration(ActionEvent actionEvent) {
+        if (net == null) {
+            showAlertDialog(Alert.AlertType.ERROR, "Ошибка приложения. Нет сети.");
+            return;
+        }
+        if (Client.login != null) {
+            showAlertDialog(Alert.AlertType.WARNING, "Для регистрации необходимо сначала выйти.");
+            return;
+        }
+
         Stage registerStage = Client.getInstance().getRegisterStage();
         Stage primaryStage = Client.getInstance().getPrimaryStage();
         registerStage.setX(primaryStage.getX() + (primaryStage.getWidth() - registerStage.getWidth()) / 2);
@@ -184,6 +195,14 @@ public class CloudController implements Initializable {
 
     @FXML
     public void executeMenuItemLogin(ActionEvent actionEvent) {
+        if (net == null) {
+            showAlertDialog(Alert.AlertType.ERROR, "Ошибка приложения. Нет сети.");
+            return;
+        }
+        if (Client.login != null) {
+            showAlertDialog(Alert.AlertType.WARNING, "Для входа под другим именем необходимо сначала выйти.");
+            return;
+        }
         Stage loginStage = Client.getInstance().getLoginStage();
         Stage primaryStage = Client.getInstance().getPrimaryStage();
         loginStage.setX(primaryStage.getX() + (primaryStage.getWidth() - loginStage.getWidth()) / 2);
@@ -193,11 +212,22 @@ public class CloudController implements Initializable {
 
     @FXML
     public void executeMenuItemLogout(ActionEvent actionEvent) {
+        Client.login = null;
+        Client.username = null;
+        Client.getInstance().getPrimaryStage().setTitle("Сетевое хранилище");
         net.stopNetty();
     }
 
     @FXML
     private void exitMenuOnActionHandler(ActionEvent actionEvent) {
         Platform.exit();
+    }
+
+    private void showAlertDialog(Alert.AlertType alertType, String message) {
+        Alert alert = new Alert(alertType, message, ButtonType.OK);
+        Stage stage = Client.getInstance().getPrimaryStage();
+        alert.setX(stage.getX() + (stage.getWidth() - Client.ALERT_WIDTH) / 2);
+        alert.setY(stage.getY() + (stage.getHeight() - Client.ALERT_HEIGHT) / 2);
+        alert.showAndWait();
     }
 }
