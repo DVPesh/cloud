@@ -131,10 +131,12 @@ public class ServerPanelController implements Initializable {
                     }
                     break;
                 case F4:
-                    fileTable.getItems().add(0, new FileInfo());
-                    fileTable.getSelectionModel().select(0);
-                    mode = Mode.CREATE_DIR;
-                    fileTable.edit(0, filenameColumn);
+                    if (socketChannel != null && currentPath != null) {
+                        fileTable.getItems().add(0, new FileInfo());
+                        fileTable.getSelectionModel().select(0);
+                        mode = Mode.CREATE_DIR;
+                        fileTable.edit(0, filenameColumn);
+                    }
                     break;
                 case DELETE:
                     if (item != null && socketChannel != null && currentPath != null) {
