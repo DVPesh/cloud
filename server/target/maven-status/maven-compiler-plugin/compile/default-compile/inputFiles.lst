@@ -7,4 +7,5 @@ C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\handlers\FileReq
 C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\handlers\FileDeleteHandler.java
 C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\handlers\CredentialHandler.java
 C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\auth\AuthService.java
+C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\handlers\CreateDirectoryHandler.java
 C:\java\cloud\server\src\main\java\ru\peshekhonov\cloud\network\handlers\FileRenameHandler.java

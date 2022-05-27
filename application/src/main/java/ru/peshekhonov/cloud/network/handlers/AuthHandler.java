@@ -10,7 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import ru.peshekhonov.cloud.Client;
 import ru.peshekhonov.cloud.messages.AuthNotOk;
 import ru.peshekhonov.cloud.messages.AuthOk;
+import ru.peshekhonov.cloud.messages.FileInfoListRequest;
 import ru.peshekhonov.cloud.messages.Message;
+
+import java.nio.file.Path;
 
 @Slf4j
 public class AuthHandler extends SimpleChannelInboundHandler<Message> {
@@ -22,8 +25,9 @@ public class AuthHandler extends SimpleChannelInboundHandler<Message> {
             Client.username = status.getUsername();
             Client.login = status.getLogin();
             Platform.runLater(() -> {
-                Client.getInstance().getPrimaryStage().setTitle("Сетевое хранилище: " + Client.username);
+                Client.getInstance().getPrimaryStage().setTitle("Сетевое хранилище : " + Client.username);
             });
+            ctx.writeAndFlush(new FileInfoListRequest(Path.of("")));
             ctx.pipeline().remove(AuthHandler.class);
         } else if (msg instanceof AuthNotOk status) {
             switch (status.getType()) {

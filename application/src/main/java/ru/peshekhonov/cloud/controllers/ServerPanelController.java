@@ -7,17 +7,17 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.ProgressBarTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
+import ru.peshekhonov.cloud.Client;
 import ru.peshekhonov.cloud.FileInfo;
+import ru.peshekhonov.cloud.messages.CreateDirectoryRequest;
 import ru.peshekhonov.cloud.messages.FileDeleteRequest;
 import ru.peshekhonov.cloud.messages.FileInfoListRequest;
 import ru.peshekhonov.cloud.messages.FileRenameRequest;
@@ -53,6 +53,12 @@ public class ServerPanelController implements Initializable {
     private Path previousPath;
     @Setter
     private Channel socketChannel;
+
+    private enum Mode {
+        RENAME, CREATE_DIR, REGULAR
+    }
+
+    private Mode mode;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -112,18 +118,26 @@ public class ServerPanelController implements Initializable {
 
         fileTable.setOnKeyPressed(event -> {
             FileInfo item = fileTable.getSelectionModel().getSelectedItem();
-            if (item == null) {
-                return;
-            }
             switch (event.getCode()) {
                 case ENTER:
-                    showSelectedDirectoryList(item);
+                    if (item != null) {
+                        showSelectedDirectoryList(item);
+                    }
                     break;
                 case F3:
-                    fileTable.edit(fileTable.getSelectionModel().getSelectedIndex(), filenameColumn);
+                    if (item != null) {
+                        mode = Mode.RENAME;
+                        fileTable.edit(fileTable.getSelectionModel().getSelectedIndex(), filenameColumn);
+                    }
+                    break;
+                case F4:
+                    fileTable.getItems().add(0, new FileInfo());
+                    fileTable.getSelectionModel().select(0);
+                    mode = Mode.CREATE_DIR;
+                    fileTable.edit(0, filenameColumn);
                     break;
                 case DELETE:
-                    if (socketChannel != null && currentPath != null) {
+                    if (item != null && socketChannel != null && currentPath != null) {
                         socketChannel.writeAndFlush(new FileDeleteRequest(currentPath.resolve(item.getFilename())));
                     }
             }
@@ -235,8 +249,29 @@ public class ServerPanelController implements Initializable {
     private void filenameColumnOnEditCommitHandler(TableColumn.CellEditEvent<FileInfo, String> fileInfoStringCellEditEvent) {
         String filename = fileInfoStringCellEditEvent.getOldValue();
         String newFilename = fileInfoStringCellEditEvent.getNewValue();
-        if (socketChannel != null && currentPath != null) {
-            socketChannel.writeAndFlush(new FileRenameRequest(currentPath.resolve(filename), newFilename));
+        try {
+            switch (mode) {
+                case RENAME:
+                    if (socketChannel != null && currentPath != null) {
+                        socketChannel.writeAndFlush(new FileRenameRequest(currentPath.resolve(filename), newFilename));
+                    }
+                    break;
+                case CREATE_DIR:
+                    if (socketChannel != null && currentPath != null) {
+                        socketChannel.writeAndFlush(new CreateDirectoryRequest(currentPath.resolve(newFilename)));
+                    }
+            }
+        } catch (InvalidPathException e) {
+            showAlertDialog(Alert.AlertType.WARNING, "Такое название не допустимо!");
         }
+        mode = Mode.REGULAR;
+    }
+
+    private void showAlertDialog(Alert.AlertType alertType, String message) {
+        Alert alert = new Alert(alertType, message, ButtonType.OK);
+        Stage stage = Client.getInstance().getPrimaryStage();
+        alert.setX(stage.getX() + (stage.getWidth() - Client.ALERT_WIDTH) / 2);
+        alert.setY(stage.getY() + (stage.getHeight() - Client.ALERT_HEIGHT) / 2);
+        alert.showAndWait();
     }
 }

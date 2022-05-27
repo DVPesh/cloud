@@ -4,6 +4,7 @@ ru\peshekhonov\cloud\network\handlers\CredentialHandler.class
 ru\peshekhonov\cloud\network\auth\User.class
 ru\peshekhonov\cloud\network\handlers\FileDeleteHandler.class
 ru\peshekhonov\cloud\network\handlers\FileRequestHandler.class
+ru\peshekhonov\cloud\network\handlers\CreateDirectoryHandler.class
 ru\peshekhonov\cloud\network\auth\AuthService.class
 ru\peshekhonov\cloud\network\handlers\FileListRequestHandler.class
 ru\peshekhonov\cloud\network\handlers\FileRenameHandler.class

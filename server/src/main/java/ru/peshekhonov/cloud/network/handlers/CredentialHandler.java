@@ -98,5 +98,6 @@ public class CredentialHandler extends SimpleChannelInboundHandler<Message> {
         pipeline.get(FileRequestHandler.class).base = base;
         pipeline.get(StartHandler.class).setBase(base);
         pipeline.get(ContinueHandler.class).setBase(base);
+        pipeline.get(CreateDirectoryHandler.class).base = base;
     }
 }

@@ -33,6 +33,12 @@ public class ClientStatusHandler extends SimpleChannelInboundHandler<Message> {
                         showAlertDialog(Alert.AlertType.ERROR, "Ошибка ввода-вывода при удалении файла");
                     });
                     break;
+                case ERROR7:
+                    log.error("[ {} ] {}", status.getPath().getFileName().toString(), StatusType.ERROR7.getText());
+                    Platform.runLater(() -> {
+                        showAlertDialog(Alert.AlertType.ERROR, "Сервер не может создать директорию");
+                    });
+                    break;
                 case WARNING1:
                     log.error("[ {} ] {}", status.getPath().getFileName().toString(), StatusType.WARNING1.getText());
                     Platform.runLater(() -> {
