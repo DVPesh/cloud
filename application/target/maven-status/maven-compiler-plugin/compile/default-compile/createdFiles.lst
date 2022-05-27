@@ -1,7 +1,9 @@
+ru\peshekhonov\cloud\network\handlers\AuthHandler$1.class
 ru\peshekhonov\cloud\network\SerializationPipeline.class
 ru\peshekhonov\cloud\controllers\CloudController.class
 ru\peshekhonov\cloud\controllers\ServerPanelController$3.class
 ru\peshekhonov\cloud\controllers\ClientPanelController$3.class
+ru\peshekhonov\cloud\network\handlers\AuthHandler.class
 ru\peshekhonov\cloud\network\handlers\ClientStatusHandler$1.class
 ru\peshekhonov\cloud\controllers\LoginController.class
 ru\peshekhonov\cloud\controllers\ClientPanelController$2.class
@@ -18,3 +20,5 @@ ru\peshekhonov\cloud\Client.class
 ru\peshekhonov\cloud\controllers\RegisterController.class
 ru\peshekhonov\cloud\controllers\ClientPanelController$1.class
 ru\peshekhonov\cloud\controllers\ServerPanelController.class
+ru\peshekhonov\cloud\controllers\ServerPanelController$Mode.class
+ru\peshekhonov\cloud\controllers\ClientPanelController$Mode.class

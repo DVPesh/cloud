@@ -15,7 +15,7 @@
         <TextField fx:id="usernameField" layoutX="150.0" layoutY="21.0"/>
         <TextField fx:id="loginField" layoutX="97.0" layoutY="63.0"/>
         <PasswordField fx:id="passwordField" layoutX="97.0" layoutY="104.0"/>
-        <Button fx:id="userButton" layoutX="97.0" layoutY="149.0" mnemonicParsing="false" onAction="#register"
+        <Button fx:id="registerButton" layoutX="97.0" layoutY="149.0" mnemonicParsing="false" onAction="#register"
                 prefHeight="25.0" prefWidth="149.0" text="Зарегистрироваться"/>
         <Label layoutX="31.0" layoutY="26.0" text="Имя пользователя:"/>
     </children>

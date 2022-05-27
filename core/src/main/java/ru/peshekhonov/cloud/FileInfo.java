@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.Map;
 
 @Getter
@@ -46,6 +47,13 @@ public class FileInfo implements Serializable {
     public FileInfo(Path base, Path fullPath, Map<Path, Metadata> map) throws IOException {
         this(fullPath);
         setLoadFactor(base.relativize(fullPath), map);
+    }
+
+    public FileInfo() {
+        this.filename = "";
+        this.type = FileType.DIRECTORY;
+        this.size = -1L;
+        this.lastModified = LocalDateTime.now();
     }
 
     private void setLoadFactor(Path path, Map<Path, Metadata> map) {

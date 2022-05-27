@@ -33,6 +33,12 @@ public class ClientStatusHandler extends SimpleChannelInboundHandler<Message> {
                         showAlertDialog(Alert.AlertType.ERROR, "Ошибка ввода-вывода при удалении файла");
                     });
                     break;
+                case ERROR7:
+                    log.error("[ {} ] {}", status.getPath().getFileName().toString(), StatusType.ERROR7.getText());
+                    Platform.runLater(() -> {
+                        showAlertDialog(Alert.AlertType.ERROR, "Сервер не может создать директорию");
+                    });
+                    break;
                 case WARNING1:
                     log.error("[ {} ] {}", status.getPath().getFileName().toString(), StatusType.WARNING1.getText());
                     Platform.runLater(() -> {
@@ -46,8 +52,7 @@ public class ClientStatusHandler extends SimpleChannelInboundHandler<Message> {
 
     private void showAlertDialog(Alert.AlertType alertType, String message) {
         Alert alert = new Alert(alertType, message, ButtonType.OK);
-        TableView<FileInfo> fileTable = Client.getInstance().getCloudController().getServerPanelController().getFileTable();
-        Stage stage = (Stage) fileTable.getScene().getWindow();
+        Stage stage = Client.getInstance().getPrimaryStage();
         alert.setX(stage.getX() + (stage.getWidth() - Client.ALERT_WIDTH) / 2);
         alert.setY(stage.getY() + (stage.getHeight() - Client.ALERT_HEIGHT) / 2);
         alert.showAndWait();

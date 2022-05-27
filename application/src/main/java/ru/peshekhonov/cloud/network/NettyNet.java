@@ -6,8 +6,10 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import javafx.application.Platform;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import ru.peshekhonov.cloud.Client;
 import ru.peshekhonov.cloud.Configuration;
 
 @Slf4j
@@ -17,6 +19,7 @@ public class NettyNet {
 
     @Getter
     private final EventLoopGroup hard;
+    @Getter
     private ChannelFuture channelFuture;
     private final Bootstrap bootstrap;
 
@@ -26,7 +29,6 @@ public class NettyNet {
         bootstrap.group(hard);
         bootstrap.channel(NioSocketChannel.class);
         bootstrap.handler(new SerializationPipeline());
-        startNetty();
     }
 
     public void startNetty() {
@@ -39,21 +41,21 @@ public class NettyNet {
                     if (cause != null) {
                         log.error("", cause);
                     }
-//                    if (!hard.isShuttingDown()) {
-//                        hard.shutdownGracefully();
-//                    }
+                    Platform.runLater(() -> {
+                        Client.username = null;
+                        Client.login = null;
+                        Client.getInstance().getPrimaryStage().setTitle("Сетевое хранилище");
+                        Client.getInstance().getCloudController().getServerPanelController().clearList();
+                    });
                 }
             });
         } catch (Exception e) {
             log.error("", e);
-//            if (!hard.isShuttingDown()) {
-//                hard.shutdownGracefully();
-//            }
         }
     }
 
     public void stopNetty() {
-        if (channelFuture != null) {
+        if (channelFuture != null && channelFuture.channel() != null && channelFuture.channel().isOpen()) {
             channelFuture.channel().close();
         }
     }

@@ -31,6 +31,9 @@ public class Client extends Application {
     @Getter
     private Stage registerStage;
 
+    public static String username;
+    public static String login;
+
     @Override
     public void start(Stage stage) throws IOException {
         primaryStage = stage;

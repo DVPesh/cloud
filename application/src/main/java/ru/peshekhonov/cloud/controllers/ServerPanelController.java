@@ -7,18 +7,17 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.ProgressBarTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
+import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
+import ru.peshekhonov.cloud.Client;
 import ru.peshekhonov.cloud.FileInfo;
+import ru.peshekhonov.cloud.messages.CreateDirectoryRequest;
 import ru.peshekhonov.cloud.messages.FileDeleteRequest;
 import ru.peshekhonov.cloud.messages.FileInfoListRequest;
 import ru.peshekhonov.cloud.messages.FileRenameRequest;
@@ -50,10 +49,16 @@ public class ServerPanelController implements Initializable {
     @FXML
     private TableColumn<FileInfo, Double> loadFactorColumn;
     @Getter
-    private Path currentPath = Path.of("user");
+    private Path currentPath = Path.of("");
     private Path previousPath;
     @Setter
     private Channel socketChannel;
+
+    private enum Mode {
+        RENAME, CREATE_DIR, REGULAR
+    }
+
+    private Mode mode;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -66,6 +71,7 @@ public class ServerPanelController implements Initializable {
 
         filenameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getFilename()));
         filenameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        filenameColumn.setEditable(true);
 
         fileSizeColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getSize()));
         fileSizeColumn.setCellFactory(column -> new TableCell<FileInfo, Long>() {
@@ -112,18 +118,30 @@ public class ServerPanelController implements Initializable {
 
         fileTable.setOnKeyPressed(event -> {
             FileInfo item = fileTable.getSelectionModel().getSelectedItem();
-            if (item == null) {
-                return;
-            }
             switch (event.getCode()) {
                 case ENTER:
-                    showSelectedDirectoryList(item);
+                    if (item != null) {
+                        showSelectedDirectoryList(item);
+                    }
                     break;
                 case F3:
-                    fileTable.edit(fileTable.getSelectionModel().getSelectedIndex(), filenameColumn);
+                    if (item != null) {
+                        mode = Mode.RENAME;
+                        fileTable.edit(fileTable.getSelectionModel().getSelectedIndex(), filenameColumn);
+                    }
+                    break;
+                case F4:
+                    if (socketChannel != null && currentPath != null) {
+                        fileTable.getItems().add(0, new FileInfo());
+                        fileTable.getSelectionModel().select(0);
+                        mode = Mode.CREATE_DIR;
+                        fileTable.edit(0, filenameColumn);
+                    }
                     break;
                 case DELETE:
-                    socketChannel.writeAndFlush(new FileDeleteRequest(currentPath.resolve(item.getFilename())));
+                    if (item != null && socketChannel != null && currentPath != null) {
+                        socketChannel.writeAndFlush(new FileDeleteRequest(currentPath.resolve(item.getFilename())));
+                    }
             }
         });
 
@@ -131,7 +149,7 @@ public class ServerPanelController implements Initializable {
             @Override
             public void run() {
                 Platform.runLater(() -> {
-                    if (currentPath != null) {
+                    if (currentPath != null && socketChannel != null) {
                         requestFileInfoList(currentPath);
                     }
                 });
@@ -140,7 +158,9 @@ public class ServerPanelController implements Initializable {
     }
 
     private void requestFileInfoList(Path directory) {
-        socketChannel.writeAndFlush(new FileInfoListRequest(directory));
+        if (socketChannel != null) {
+            socketChannel.writeAndFlush(new FileInfoListRequest(directory));
+        }
     }
 
     public void clearList() {
@@ -182,7 +202,6 @@ public class ServerPanelController implements Initializable {
             Path path = currentPath.resolve(item.getFilename());
             previousPath = currentPath;
             currentPath = path;
-            filenameColumn.setEditable(true);
             requestFileInfoList(currentPath);
         } catch (InvalidPathException e) {
             clearList();
@@ -191,17 +210,8 @@ public class ServerPanelController implements Initializable {
 
     @FXML
     private void rootButtonOnActionHandler(ActionEvent actionEvent) {
-        filenameColumn.setEditable(false);
         previousPath = currentPath;
         currentPath = Path.of("");
-        requestFileInfoList(currentPath);
-    }
-
-    @FXML
-    private void workingDirectoryButtonOnActionHandler(ActionEvent actionEvent) {
-        filenameColumn.setEditable(true);
-        previousPath = currentPath;
-        currentPath = Path.of("user");
         requestFileInfoList(currentPath);
     }
 
@@ -216,7 +226,6 @@ public class ServerPanelController implements Initializable {
             }
             previousPath = currentPath;
             currentPath = path;
-            filenameColumn.setEditable(!str.equals(""));
             requestFileInfoList(currentPath);
         } catch (InvalidPathException e) {
             clearList();
@@ -232,10 +241,8 @@ public class ServerPanelController implements Initializable {
         previousPath = currentPath;
         if (parentPath == null) {
             currentPath = Path.of("");
-            filenameColumn.setEditable(false);
         } else {
             currentPath = parentPath;
-            filenameColumn.setEditable(true);
         }
         requestFileInfoList(currentPath);
     }
@@ -244,6 +251,29 @@ public class ServerPanelController implements Initializable {
     private void filenameColumnOnEditCommitHandler(TableColumn.CellEditEvent<FileInfo, String> fileInfoStringCellEditEvent) {
         String filename = fileInfoStringCellEditEvent.getOldValue();
         String newFilename = fileInfoStringCellEditEvent.getNewValue();
-        socketChannel.writeAndFlush(new FileRenameRequest(currentPath.resolve(filename), newFilename));
+        try {
+            switch (mode) {
+                case RENAME:
+                    if (socketChannel != null && currentPath != null) {
+                        socketChannel.writeAndFlush(new FileRenameRequest(currentPath.resolve(filename), newFilename));
+                    }
+                    break;
+                case CREATE_DIR:
+                    if (socketChannel != null && currentPath != null) {
+                        socketChannel.writeAndFlush(new CreateDirectoryRequest(currentPath.resolve(newFilename)));
+                    }
+            }
+        } catch (InvalidPathException e) {
+            showAlertDialog(Alert.AlertType.WARNING, "Такое название не допустимо!");
+        }
+        mode = Mode.REGULAR;
+    }
+
+    private void showAlertDialog(Alert.AlertType alertType, String message) {
+        Alert alert = new Alert(alertType, message, ButtonType.OK);
+        Stage stage = Client.getInstance().getPrimaryStage();
+        alert.setX(stage.getX() + (stage.getWidth() - Client.ALERT_WIDTH) / 2);
+        alert.setY(stage.getY() + (stage.getHeight() - Client.ALERT_HEIGHT) / 2);
+        alert.showAndWait();
     }
 }
